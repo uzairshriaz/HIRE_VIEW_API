@@ -244,7 +244,7 @@ exports.FOLLOW_USER = function(req,res){
               return res.status(404).json({"status":"already added"}).send();
             }
 
-            var index = _.indexOf(arrayOfFollowedUsers,obj.name);
+          //  var index = _.indexOf(arrayOfFollowedUsers,obj.name);
             arrayOfFollowedUsers.push(followingID);
             result1.following = arrayOfFollowedUsers;
             result1.save();
@@ -255,9 +255,6 @@ exports.FOLLOW_USER = function(req,res){
             result2.save();
             res.send({"status":"followed successfully"});
           }
-
-
-
         else{
           return res.status(404).send();
         }
@@ -271,4 +268,86 @@ exports.FOLLOW_USER = function(req,res){
   },(e1)=>{
       return res.status(404).send();
   });
+};
+
+
+exports.UNFOLLOW_USER = function(req,res){
+  console.log('unfollow');
+  const followerID = req.body.followerID;
+  const followingID = req.body.followingID;
+  var flag = false;
+  var text = '{ "object":"'+followingID+'"}';
+  var text2 = '{ "objectfr":"'+followerID+'"}';
+  var index;
+
+  userModel.findById(followerID).then((result1)=>{
+    if(result1 && result1.status === "1")
+    {
+      userModel.findById(followingID).then((result2)=>{
+        if(result2 && result2.status === "1")
+        {
+          var arrayOfFollowedUsers = result1.following;
+          var obj = JSON.parse(text);
+          //console.log('"'+obj.object+'"');
+          //console.log(JSON.stringify(arrayOfFollowedUsers[0]));
+          for (var i = 0 ;i<arrayOfFollowedUsers.length;i++)
+          {
+            if(JSON.stringify(arrayOfFollowedUsers[i]) == '"'+obj.object+'"'){
+              //console.log("inside");
+              flag = true;
+              index = i;
+              break;
+            }
+          }
+          if(flag)
+          {
+            arrayOfFollowedUsers.splice(index,1);
+            result1.following = arrayOfFollowedUsers;
+            result1.save();
+
+            var obj = JSON.parse(text2);
+            var ob = '"'+obj.objectfr+'"'
+            var arrayoffollowers = result2.followers;
+            var ind;
+
+            for (var i = 0 ;i<arrayOfFollowedUsers.length;i++)
+            {
+              if(JSON.stringify(arrayoffollowers[i]) == '"'+obj.objectfr+'"'){
+                //console.log("inside");
+                
+                ind = i;
+                break;
+              }
+            }
+            arrayoffollowers.splice(ind,1);
+            result2.followers = arrayoffollowers;
+            result2.save();
+            res.send({"status":"UN-followed successfully"});
+
+            //console.log('already added');
+
+          }
+          else {
+            return res.status(404).json({"status":"already unfollowed"}).send();
+          }
+
+
+        }
+        else {
+          return res.status(404).send();
+        }
+
+      },(e2)=>{
+       return res.status(404).send();
+      });
+
+    }
+    else {
+      return res.status(404).send();
+    }
+
+  },(e)=>{
+      return res.status(404).send();
+  });
+
 };

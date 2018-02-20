@@ -16,6 +16,7 @@ module.exports = function(app){
     app.route('/removeComapnyByID/:companyID').patch(controller.REMOVE_COMPANY_BY_ID);
     app.route('/updateCompany').patch(controller.UPDATE_COMPANY);
     app.route('/followUser').patch(controller.FOLLOW_USER);
+    app.route('/unfollowUser').patch(controller.UNFOLLOW_USER);
 
 
 
