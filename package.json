@@ -1,0 +1,19 @@
+{
+  "name": "hireview",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.2",
+    "lodash": "^4.17.5",
+    "mongoose": "^5.0.6"
+  },
+  "devDependencies": {
+    "nodemon": "^1.14.3"
+  }
+}
