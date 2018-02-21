@@ -566,3 +566,21 @@ exports.UPDATE_ANSWER = function(req,res){
   });
 
 };
+exports.CREATE_JOB_REQUEST = function(req,res){
+  console.log(' create job request');
+  const jobRequest = new jobsRequestModel(req.body);
+  jobRequest.save().then((result)=>{
+    res.json({"status":"created succesffully"});
+  },(e)=>{
+    res.json({"status":"error in creation"});
+  });
+};
+exports.CREATE_JOB = function(req,res){
+  console.log('create job ');
+  const job = new jobsModel(req.body);
+  job.save().then((result)=>{
+    res.json({"status":"created succesffully"});
+  },(e)=>{
+    res.json({"status":"error in creation"});
+  });
+};

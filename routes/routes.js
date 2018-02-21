@@ -22,6 +22,8 @@ module.exports = function(app){
     app.route('/createAnswer').post(controller.CREATE_ANSWER);
     app.route('/removeAnswer').patch(controller.REMOVE_ANSWER);
     app.route('/updateAnswer').patch(controller.UPDATE_ANSWER);
+    app.route('/createJobRequest').post(controller.CREATE_JOB_REQUEST);
+    app.route('/createJob').post(controller.CREATE_JOB);
 
 
 
