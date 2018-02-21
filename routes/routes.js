@@ -21,6 +21,7 @@ module.exports = function(app){
     app.route('/unlikePost').patch(controller.UNLIKE_POST);
     app.route('/createAnswer').post(controller.CREATE_ANSWER);
     app.route('/removeAnswer').patch(controller.REMOVE_ANSWER);
+    app.route('/updateAnswer').patch(controller.UPDATE_ANSWER);
 
 
 

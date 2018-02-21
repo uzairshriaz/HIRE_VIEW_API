@@ -484,8 +484,6 @@ exports.REMOVE_ANSWER = function(req,res){
 
           answerModel.findById(answerID).then((result3)=>{
             if(result3 && result3.status == "1"){
-              console.log(typeof(result3.userID));
-              console.log(typeof(userID));
                 if(JSON.stringify(result3.userID) == '"'+obj.userID+'"' && JSON.stringify(result3.postID) =='"'+obj.postID+'"'){
                 result3.status = "0";
                 result3.save();
@@ -516,4 +514,55 @@ exports.REMOVE_ANSWER = function(req,res){
   },(e1)=>{
     return res.status(404).json({"status":"post not found"});
   });
+};
+
+exports.UPDATE_ANSWER = function(req,res){
+  console.log('update answer');
+  const postID = req.body.postID;
+  const userID = req.body.userID;
+  const answerID = req.body.answerID;
+  var text = '{"userID":"'+userID+'","postID":"'+postID+'","answerID":"'+answerID+'"}'
+  var obj = JSON.parse(text);
+  postModel.findById(postID).then((result1)=>{
+    if(result1 && result1.status == "1")
+    {
+      userModel.findById(userID).then((result2)=>{
+        if(result2 && result2.status == "1")
+        {
+
+          answerModel.findById(answerID).then((result3)=>{
+            if(result3){
+                if(JSON.stringify(result3.userID) == '"'+obj.userID+'"' && JSON.stringify(result3.postID) =='"'+obj.postID+'"'){
+                    result3.status = req.body.status;
+                    result3.content = req.body.content;
+                    result3.date = Date.now();
+                    result3.save();
+                    res.json({"status":"updated succesffully"});
+                }else {
+                  res.json({"status":"not found"});
+              }
+            }
+            else{
+              res.status(404).json({"status":"answer not found"});
+            }
+
+          },(e3)=>{
+              res.status(404).json({"status":"answer not found "});
+          });
+
+        }
+        else{
+          res.status(404).json({"status":"user not found"});
+        }
+      },(e2)=>{
+        return res.status(404).json({"status":"user not found"});
+      });
+
+    }else{
+      return res.status(404).json({"status":"post not found or removed"});
+    }
+  },(e1)=>{
+    return res.status(404).json({"status":"post not found"});
+  });
+
 };
