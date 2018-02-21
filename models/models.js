@@ -42,7 +42,7 @@ var postSchema = new Schema({
     content:{type:String,required:true},
     dateTimeCreated:{type:String,required:true},
     postType:{type:String,required:true},
-    isReported:{type:Number,min:0,max:1,required:true},
+    isReported:{type:Number,min:0,max:3,required:true},
     status:{type:String,required:true},
     likes:[{type:Schema.Types.ObjectId,ref:"user",required:true}]
 });
@@ -80,6 +80,7 @@ var answersSchema = new Schema({
     userID:{type:Schema.Types.ObjectId,ref:"user",required:true},
     content:{type:String,required:true},
     dateTimeCreated:{type:String,required:true},
+    status:{type:String,required:true}
 
 });
 module.exports = mongoose.model('userModel',userSchema,'users');
