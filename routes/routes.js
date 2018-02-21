@@ -17,6 +17,8 @@ module.exports = function(app){
     app.route('/updateCompany').patch(controller.UPDATE_COMPANY);
     app.route('/followUser').patch(controller.FOLLOW_USER);
     app.route('/unfollowUser').patch(controller.UNFOLLOW_USER);
+    app.route('/likePost').patch(controller.LIKE_POST);
+    app.route('/unlikePost').patch(controller.UNLIKE_POST);
 
 
 

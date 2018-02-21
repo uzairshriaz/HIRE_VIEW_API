@@ -228,23 +228,17 @@ exports.FOLLOW_USER = function(req,res){
         {
             var arrayOfFollowedUsers = result1.following;
             var obj = JSON.parse(text);
-            //console.log('"'+obj.object+'"');
-            //console.log(JSON.stringify(arrayOfFollowedUsers[0]));
             for (var i = 0 ;i<arrayOfFollowedUsers.length;i++)
             {
               if(JSON.stringify(arrayOfFollowedUsers[i]) == '"'+obj.object+'"'){
-                //console.log("inside");
                 flag = true;
                 break;
               }
             }
             if(flag)
             {
-              //console.log('already added');
               return res.status(404).json({"status":"already added"}).send();
             }
-
-          //  var index = _.indexOf(arrayOfFollowedUsers,obj.name);
             arrayOfFollowedUsers.push(followingID);
             result1.following = arrayOfFollowedUsers;
             result1.save();
@@ -284,16 +278,13 @@ exports.UNFOLLOW_USER = function(req,res){
     if(result1 && result1.status === "1")
     {
       userModel.findById(followingID).then((result2)=>{
-        if(result2 && result2.status === "1")
+        if(result2 )
         {
           var arrayOfFollowedUsers = result1.following;
           var obj = JSON.parse(text);
-          //console.log('"'+obj.object+'"');
-          //console.log(JSON.stringify(arrayOfFollowedUsers[0]));
           for (var i = 0 ;i<arrayOfFollowedUsers.length;i++)
           {
             if(JSON.stringify(arrayOfFollowedUsers[i]) == '"'+obj.object+'"'){
-              //console.log("inside");
               flag = true;
               index = i;
               break;
@@ -313,8 +304,6 @@ exports.UNFOLLOW_USER = function(req,res){
             for (var i = 0 ;i<arrayOfFollowedUsers.length;i++)
             {
               if(JSON.stringify(arrayoffollowers[i]) == '"'+obj.objectfr+'"'){
-                //console.log("inside");
-                
                 ind = i;
                 break;
               }
@@ -323,31 +312,118 @@ exports.UNFOLLOW_USER = function(req,res){
             result2.followers = arrayoffollowers;
             result2.save();
             res.send({"status":"UN-followed successfully"});
-
-            //console.log('already added');
-
           }
           else {
             return res.status(404).json({"status":"already unfollowed"}).send();
           }
-
-
         }
         else {
           return res.status(404).send();
         }
 
       },(e2)=>{
-       return res.status(404).send();
+          return res.status(404).send();
       });
 
     }
     else {
-      return res.status(404).send();
+          return res.status(404).send();
     }
 
   },(e)=>{
-      return res.status(404).send();
+          return res.status(404).send();
   });
 
+};
+
+
+exports.LIKE_POST = function(req,res){
+  console.log('like');
+  const postID = req.body.postID;
+  const likerID = req.body.likerID;
+  var text = '{ "object":"'+likerID+'"}';
+  var flag = false;
+  var index;
+
+  postModel.findById(postID).then((result1)=>{
+    if(result1.status === "1" && result1)
+    {
+      userModel.findById(likerID).then((result2)=>{
+        if(result2 && result2.status === "1")
+        {
+          var userID = result2._id;
+          arrayOfLikes = result1.likes;
+          var obj = JSON.parse(text);
+
+          for (var i = 0 ;i<arrayOfLikes.length;i++)
+          {
+            if(JSON.stringify(arrayOfLikes[i]) == '"'+obj.object+'"'){
+
+              flag = true;
+              index = i;
+              break;
+            }
+          }
+          if(flag)
+          {
+            return res.status(404).json({"status":"already liked"});
+          }else {
+              arrayOfLikes.push(userID);
+              result1.likes = arrayOfLikes;
+              result1.save();
+              res.json({"status":"liked :) "});
+          }
+        }else {
+          return res.status(404).json({"status":"user deactivated"});
+        }
+
+      },(e2)=>{
+          return res.status(404).json({"status":"user not found"});
+      });
+
+    }else {
+      return res.status(404).json({"status":"post deactivated"});
+    }
+  },(e1)=>{
+     return res.status(404).json({"status":"post not found"});
+  });
+};
+
+
+
+exports.UNLIKE_POST = function(req,res){
+  console.log('unlike');
+  const postID = req.body.postID;
+  const likerID = req.body.likerID;
+  var text = '{"object":"'+likerID+'"}'
+  var obj = JSON.parse(text);
+  var index = -1;
+  postModel.findById(postID).then((result1)=>{
+    if(result1 && result1.status === "1")
+    {
+      var arrayOfLikes = result1.likes;
+      console.log(JSON.stringify(arrayOfLikes[0]));
+      console.log('"'+obj.object+'"');
+      for(var i = 0 ;i <arrayOfLikes.length;i++ ){
+        if(JSON.stringify(arrayOfLikes[i]) == '"'+obj.object+'"')
+        {
+          index = i;
+          break;
+        }
+
+      }
+      if(index > -1){
+        arrayOfLikes.splice(index,1);
+        result1.likes = arrayOfLikes;
+        result1.save();
+        res.json({"status":"unliked succesffully"});
+      }else {
+        return res.status(404).json({"status":"already unliked or like not found"});
+      }
+    }else {
+      return res.status(404).json({"status":"post deactivated or post not found"});
+    }
+  },(e1)=>{
+      return res.status(404).json({"status":"post not found"});
+  });
 };
