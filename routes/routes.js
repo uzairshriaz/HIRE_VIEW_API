@@ -24,7 +24,8 @@ module.exports = function(app){
     app.route('/updateAnswer').patch(controller.UPDATE_ANSWER);
     app.route('/createJobRequest').post(controller.CREATE_JOB_REQUEST);
     app.route('/createJob').post(controller.CREATE_JOB);
-
+    app.route('/addSeekerJobResponse').patch(controller.ADD_SEEKER_JOB_RESPONSE);
+    app.route('/addCompanyJobRequestResponse').patch(controller.ADD_COMPANY_JOB_REQUEST_RESPONSE);
 
 
 };

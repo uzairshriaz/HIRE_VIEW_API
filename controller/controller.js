@@ -584,3 +584,64 @@ exports.CREATE_JOB = function(req,res){
     res.json({"status":"error in creation"});
   });
 };
+exports.ADD_SEEKER_JOB_RESPONSE=function(req,res){
+  console.log('inside');
+  const jobID = req.body.jobID;
+  const userID = req.body.seekerID;
+  jobsModel.findById(jobID).then((result)=>{
+    if(result && result.status==="1")
+    {
+      seekerModel.findById(userID).then((result2)=>{
+        if(result2 && result2.status === "1")
+        {
+          var arrayOfSeekerResponses = result.responsesSeekerID;
+          arrayOfSeekerResponses.push(userID);
+          result.responsesSeekerID = arrayOfSeekerResponses;
+          result.save();
+          res.json({"status":"succesffully added"});
+
+        }else {
+          return res.status(404).send();
+        }
+      },(e2)=>{
+        return res.status(404).send(e2);
+      });
+
+    }else {
+      return res.status(404).send();
+    }
+  },(e)=>{
+    res.status(404).send(e);
+  });
+};
+exports.ADD_COMPANY_JOB_REQUEST_RESPONSE = function(req,res){
+  console.log('inside');
+  const jobReqID = req.body.jobReqID;
+  const companyID = req.body.companyID;
+  jobsRequestModel.findById(jobReqID).then((result)=>{
+    if(result && result.status==="1")
+    {
+      companyModel.findById(companyID).then((result2)=>{
+        if(result2 && result2.status === "1")
+        {
+          var arrayOfCompanyResponses = result.responsesCompanyID;
+          arrayOfCompanyResponses.push(companyID);
+          result.responsesCompanyID = arrayOfCompanyResponses;
+          result.save();
+          res.json({"status":"succesffully added"});
+
+        }else {
+          return res.status(404).send();
+        }
+      },(e2)=>{
+        return res.status(404).send(e2);
+      });
+
+    }else {
+      return res.status(404).send();
+    }
+  },(e)=>{
+    res.status(404).send(e);
+  });
+
+};

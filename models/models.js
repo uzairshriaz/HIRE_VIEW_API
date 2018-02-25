@@ -56,6 +56,7 @@ var jobRequestSchema = new Schema({
     jobType:{type:String,required:true},
     expectedSalaray:{type:String,required:true},
     preferredLocation:{type:String,required:true},
+    status:{type:String,required:true},
     responsesCompanyID:[{type:Schema.Types.ObjectId,ref:"comapny"}],
 
 });
@@ -71,6 +72,7 @@ var jobsSchema = new Schema({
     requiredExpereice:{type:String,required:true},
     vacancies:{type:String,required:true},
     lastDateToApply:{type:String,required:true},
+    status:{type:String,required:true},
     responsesSeekerID:[{type:Schema.Types.ObjectId,ref:"seeker"}],
 
 });
