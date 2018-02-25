@@ -670,3 +670,37 @@ exports.ADD_COMPANY_JOB_REQUEST_RESPONSE = function(req,res){
   });
 
 };
+exports.GET_POST_LIKES = function(req,res){
+  const postID = req.params.PostID;
+  likesUserObjectArray = [];
+  postModel.findById(postID).then((result1)=>{
+    if(result1 && result1.status ==="1")
+    {
+      likesCount = result1.likes.length;
+      var temp = likesCount;
+      for(var i=0;i<likesCount;i++)
+      {
+          userModel.findById(result1.likes[i]).then((result2)=>{
+          likesUserObjectArray.push(result2);
+          temp =temp-1;
+          if(temp===0){
+            return res.json({
+              "likesCount":likesCount,
+              "likesUserObjectArray":likesUserObjectArray
+            });
+          }
+
+        },(e2)=>{
+          return res.status(404).send(e2);
+
+        });
+      }
+
+
+    }else{
+      return res.status(404).json({"status":"post not found"});
+    }
+  },(e1)=>{
+    return res.status(404).send(e1);
+  });
+};

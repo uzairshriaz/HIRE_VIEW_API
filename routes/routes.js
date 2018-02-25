@@ -26,6 +26,6 @@ module.exports = function(app){
     app.route('/createJob').post(controller.CREATE_JOB);
     app.route('/addSeekerJobResponse').patch(controller.ADD_SEEKER_JOB_RESPONSE);
     app.route('/addCompanyJobRequestResponse').patch(controller.ADD_COMPANY_JOB_REQUEST_RESPONSE);
-
+    app.route('/getPostLikes/:PostID').get(controller.GET_POST_LIKES);
 
 };
