@@ -588,12 +588,24 @@ exports.ADD_SEEKER_JOB_RESPONSE=function(req,res){
   console.log('inside');
   const jobID = req.body.jobID;
   const userID = req.body.seekerID;
+  var text = '{"userID":"'+userID+'"}'
+  var obj = JSON.parse(text);
+  var flag = false;
   jobsModel.findById(jobID).then((result)=>{
     if(result && result.status==="1")
     {
       seekerModel.findById(userID).then((result2)=>{
         if(result2 && result2.status === "1")
         {
+          for(var i=0;i<result.responsesSeekerID.length;i++)
+          {
+            if(JSON.stringify(result.responsesSeekerID[i]) == '"'+obj.userID+'"'){
+              flag = true;
+            }
+          }
+          if(flag){
+            return res.status(404).json({"status":"response already added"});
+          }
           var arrayOfSeekerResponses = result.responsesSeekerID;
           arrayOfSeekerResponses.push(userID);
           result.responsesSeekerID = arrayOfSeekerResponses;
@@ -618,12 +630,25 @@ exports.ADD_COMPANY_JOB_REQUEST_RESPONSE = function(req,res){
   console.log('inside');
   const jobReqID = req.body.jobReqID;
   const companyID = req.body.companyID;
+  var text ='{"companyID":"'+companyID+'"}'
+  var obj = JSON.parse(text);
+  var flag = false;
   jobsRequestModel.findById(jobReqID).then((result)=>{
     if(result && result.status==="1")
     {
       companyModel.findById(companyID).then((result2)=>{
         if(result2 && result2.status === "1")
         {
+          for(var i=0;i<result.responsesCompanyID.length;i++)
+          {
+            if(JSON.stringify(result.responsesCompanyID[i]) == '"'+obj.companyID+'"')
+            {
+              flag = true;
+            }
+          }
+          if(flag){
+            return res.status(404).json({"status":"response already added"});
+          }
           var arrayOfCompanyResponses = result.responsesCompanyID;
           arrayOfCompanyResponses.push(companyID);
           result.responsesCompanyID = arrayOfCompanyResponses;
