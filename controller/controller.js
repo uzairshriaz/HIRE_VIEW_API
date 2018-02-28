@@ -12,30 +12,38 @@ const	companyModel = mongoose.model('companyModel');
 
 exports.CREATE_USER=function(req,res){
     const newUser = new userModel(req.body);
-    newUser.save(function(error){
-        res.json({user:"created Successfully"});
+    newUser.save().then((result)=>{
+      return res.json({"result":result});
+    },(e)=>{
+      return res.status(404).send();
     });
 };
 
 exports.CREATE_SEEKER=function(req,res){
     const newSeeker = new seekerModel(req.body);
-    newSeeker.save(function(error){
-        res.json({seeker:"created Successfully"});
+    newSeeker.save().then((result)=>{
+      return res.json({"result":result});
+    },(e)=>{
+      return res.status(404).send();
     });
 };
 
 exports.CREATE_COMPANY=function(req,res){
     const newCompany = new companyModel(req.body);
-    newCompany.save(function(error){
-        res.json({company:"created Successfully"});
+    newCompany.save().then((result)=>{
+      return res.json({"result":result});
+    },(e)=>{
+      return res.status(404).send();
     });
 
 };
 
 exports.CREATE_POST=function(req,res){
     const newPost = new postModel(req.body);
-    newPost.save(function(error){
-        res.json({post:"created Successfully"});
+    newPost.save().then((result)=>{
+      return res.json({"result":result});
+    },(e)=>{
+        return res.status(404).send();
     });
 
 };
@@ -447,8 +455,10 @@ exports.CREATE_ANSWER=function(req,res){
             "status":1
           };
           const Answer = new answerModel(obj);
-          Answer.save(()=>{
-            res.json({"status":"Answer created succesffully"});
+          Answer.save().then((result)=>{
+            return res.json({"result":result});
+          },(e)=>{
+              return res.status(404).send();
           });
 
         }else {
@@ -570,18 +580,18 @@ exports.CREATE_JOB_REQUEST = function(req,res){
   console.log(' create job request');
   const jobRequest = new jobsRequestModel(req.body);
   jobRequest.save().then((result)=>{
-    res.json({"status":"created succesffully"});
+    res.json({"result":result});
   },(e)=>{
-    res.json({"status":"error in creation"});
+    res.status(404).json({"status":"error in creation"});
   });
 };
 exports.CREATE_JOB = function(req,res){
   console.log('create job ');
   const job = new jobsModel(req.body);
   job.save().then((result)=>{
-    res.json({"status":"created succesffully"});
+    res.json({"result":result});
   },(e)=>{
-    res.json({"status":"error in creation"});
+    res.status(404).json({"status":"error in creation"});
   });
 };
 exports.ADD_SEEKER_JOB_RESPONSE=function(req,res){
