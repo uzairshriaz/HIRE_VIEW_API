@@ -11,9 +11,60 @@ const	companyModel = mongoose.model('companyModel');
 
 
 exports.CREATE_USER=function(req,res){
+    str1 = "seeker";
+    str2 = "company";
+
     const newUser = new userModel(req.body);
+    const usertype = req.body.userType;
     newUser.save().then((result)=>{
-      return res.send(result);
+    //  console.log(usertype);
+      if(usertype.toUpperCase() === str1.toUpperCase()){
+        //seeker
+        newObj = {
+          "userID":result._id,
+          "age":"0",
+          "status":"0",
+          "postalAddress":"0",
+          "skills":"[]",
+          "education":"[]",
+          "expereince":"[]"
+        }
+        const newSeeker = new seekerModel(newObj);
+        newSeeker.save().then((result6)=>{
+          res.json({"seekerID":result6._id,"userObject":result});
+        },(e1)=>{
+          return res.send(e1);
+        });
+
+      }
+      else if (usertype.toUpperCase() === str2.toUpperCase()) {
+        //company
+        newObj = {
+          "userID":result._id,
+          "numberOfEmployees":"0",
+          "dateFounded":"0",
+          "postalAddress":"0",
+          "status":"[]",
+          "portfolio":"[]",
+          "typeOfCompany":"[]",
+          "contact":"0",
+          "Address":"0"
+        }
+        const newCompany = new companyModel(newObj);
+        newCompany.save().then((result3)=>{
+          res.json({"userObject":result,"companyID":result3._id});
+        },(e3)=>{
+          return res.send(e3);
+        });
+
+
+
+    }
+      else{
+        //error
+        res.json({"status":"error"});
+
+      }
     },(e)=>{
       return res.send(e);
     });
