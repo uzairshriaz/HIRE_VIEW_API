@@ -15,7 +15,7 @@ exports.CREATE_USER=function(req,res){
     newUser.save().then((result)=>{
       return res.send(result);
     },(e)=>{
-      return res.status(404).send();
+      return res.send(e);
     });
 };
 
@@ -23,7 +23,6 @@ exports.LOGIN = function(req,res){
   userModel.find({'email': req.params.email, 'password': req.params.password}, function(err,result){
     if(!err){
         res.send(result);
-        
     }
   });
 };
@@ -33,7 +32,7 @@ exports.CREATE_SEEKER=function(req,res){
     newSeeker.save().then((result)=>{
       return res.send(result);
     },(e)=>{
-      return res.status(404).send();
+      return res.send(e);
     });
 };
 
@@ -42,7 +41,7 @@ exports.CREATE_COMPANY=function(req,res){
     newCompany.save().then((result)=>{
       return res.json({"result":result});
     },(e)=>{
-      return res.status(404).send();
+      return res.send(e);
     });
 
 };
@@ -52,7 +51,7 @@ exports.CREATE_POST=function(req,res){
     newPost.save().then((result)=>{
       return res.json({"result":result});
     },(e)=>{
-        return res.status(404).send();
+        return res.send(e);
     });
 
 };
@@ -70,10 +69,10 @@ exports.REMOVE_USER=(req,res)=>{
       res.json({"status":"updated Successfully"});
 
     }else {
-      res.status(404).send();
+      res.json({"status":"Unsuccessfull"});
     }
   },(e)=>{
-    res.status(400).send(e);
+    return res.send(e);
   });
 
 };
@@ -86,13 +85,13 @@ exports.REMOVE_POST=(req,res)=>{
     {
       result.status = "0";
       result.save();
-      res.json({"status":"updated Successfully"});
+      res.json({"status":"Updated Successfully"});
 
     }else {
-      res.status(404).send();
+      res.json({"status":"Unsuccessfull"});
     }
   },(e)=>{
-    res.status(400).send(e);
+    return res.send(e);
   });
 
 };
@@ -104,7 +103,7 @@ exports.UPDATE_USER=(req,res)=>{
     res.json({status:"updated Successfully"});
 
   },(e)=>{
-    res.status(400).send(e);
+    res.send(e);
   });
 
 };
@@ -120,7 +119,7 @@ exports.GET_USER_BY_ID=function(req,res){
       res.status(404).send();
     }
   },(e)=>{
-    res.status(400).send(e);
+    res.send(e);
   });
 
 };
@@ -138,7 +137,7 @@ exports.GET_POST_BY_ID = function(req,res){
       }
 
     },(e)=>{
-      res.status(400).send(e);
+      res.send(e);
     });
 };
 
@@ -150,7 +149,7 @@ exports.UPDATE_POST = function(req,res){
   postModel.findByIdAndUpdate(id,{$set:req.body},{new:true}).then((result)=>{
     res.json({"status":"updatd Successfully"});
   },(e)=>{
-    res.status(404).send(e);
+    return res.send(e);
   });
 
 };
@@ -170,7 +169,7 @@ exports.REMOVE_SEEKER = function(req,res){
     }
   },(e)=>{
     console.log('else');
-       return res.status(404).send(e);
+      return res.send(e);
   });
 };
 
@@ -188,7 +187,7 @@ exports.GET_SEEKER_BY_ID = function(req,res){
     }
 
   },(e)=>{
-    return res.status(404).send(e);
+     return res.send(e);
   });
 };
 
@@ -204,7 +203,7 @@ exports.GET_COMPANY_BY_ID = function(req,res){
       return res.status(404).send({"status":"not found"});
     }
   },(e)=>{
-      return res.status(404).send(e);
+      return return res.send(e);
   });
 };
 
@@ -218,7 +217,7 @@ exports.REMOVE_COMPANY_BY_ID = function(req,res){
       res.send({"status":"removed succesffully"});
     }
   },(e)=>{
-      return res.status(404).send(e);
+      return return res.send(e);
   });
 };
 
@@ -228,7 +227,7 @@ exports.UPDATE_COMPANY = function(req,res){
       return res.json({"status":"updated succesffully"});
 
   },(e)=>{
-      return res.status(404).send(e);
+      return return res.send(e);
   });
 };
 
@@ -270,14 +269,14 @@ exports.FOLLOW_USER = function(req,res){
           return res.status(404).send();
         }
       },(e2)=>{
-          return res.status(404).send();
+          return res.send(e2);
       });
     }
     else {
       return res.status(404).send();
     }
   },(e1)=>{
-      return res.status(404).send();
+      return res.send(e1);
   });
 };
 
@@ -635,14 +634,14 @@ exports.ADD_SEEKER_JOB_RESPONSE=function(req,res){
           return res.status(404).send();
         }
       },(e2)=>{
-        return res.status(404).send(e2);
+         return res.send(e2);
       });
 
     }else {
       return res.status(404).send();
     }
   },(e)=>{
-    res.status(404).send(e);
+    return res.send(e);
   });
 };
 exports.ADD_COMPANY_JOB_REQUEST_RESPONSE = function(req,res){
@@ -678,14 +677,14 @@ exports.ADD_COMPANY_JOB_REQUEST_RESPONSE = function(req,res){
           return res.status(404).send();
         }
       },(e2)=>{
-        return res.status(404).send(e2);
+         return res.send(e2);
       });
 
     }else {
       return res.status(404).send();
     }
   },(e)=>{
-    res.status(404).send(e);
+    return res.send(e);
   });
 
 };
@@ -710,7 +709,7 @@ exports.GET_POST_LIKES = function(req,res){
           }
 
         },(e2)=>{
-          return res.status(404).send(e2);
+           return res.send(e2);
 
         });
       }
@@ -720,6 +719,6 @@ exports.GET_POST_LIKES = function(req,res){
       return res.status(404).json({"status":"post not found"});
     }
   },(e1)=>{
-    return res.status(404).send(e1);
+    return res.send(e1);
   });
 };
