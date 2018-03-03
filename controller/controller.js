@@ -254,7 +254,7 @@ exports.GET_COMPANY_BY_ID = function(req,res){
       return res.status(404).send({"status":"not found"});
     }
   },(e)=>{
-      return return res.send(e);
+      return res.send(e);
   });
 };
 
@@ -268,7 +268,7 @@ exports.REMOVE_COMPANY_BY_ID = function(req,res){
       res.send({"status":"removed succesffully"});
     }
   },(e)=>{
-      return return res.send(e);
+      return res.send(e);
   });
 };
 
@@ -278,7 +278,7 @@ exports.UPDATE_COMPANY = function(req,res){
       return res.json({"status":"updated succesffully"});
 
   },(e)=>{
-      return return res.send(e);
+      return res.send(e);
   });
 };
 
