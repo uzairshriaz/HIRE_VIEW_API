@@ -22,7 +22,7 @@ exports.CREATE_USER=function(req,res){
 exports.CREATE_SEEKER=function(req,res){
     const newSeeker = new seekerModel(req.body);
     newSeeker.save().then((result)=>{
-      return res.json({"result":result});
+      return res.send(result);
     },(e)=>{
       return res.status(404).send();
     });
