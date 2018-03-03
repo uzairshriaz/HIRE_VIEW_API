@@ -19,6 +19,14 @@ exports.CREATE_USER=function(req,res){
     });
 };
 
+exports.LOGIN = function(req,res){
+  userModel.find({'email': req.params.email, 'password': req.params.password}, function(err,result){
+    if(!err){
+        res.send(result);
+    }
+  });
+};
+
 exports.CREATE_SEEKER=function(req,res){
     const newSeeker = new seekerModel(req.body);
     newSeeker.save().then((result)=>{
