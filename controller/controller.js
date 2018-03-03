@@ -13,7 +13,7 @@ const	companyModel = mongoose.model('companyModel');
 exports.CREATE_USER=function(req,res){
     const newUser = new userModel(req.body);
     newUser.save().then((result)=>{
-      return res.json({"result":result});
+      return res.send(result);
     },(e)=>{
       return res.status(404).send();
     });
