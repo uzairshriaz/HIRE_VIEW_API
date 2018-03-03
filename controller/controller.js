@@ -23,6 +23,7 @@ exports.LOGIN = function(req,res){
   userModel.find({'email': req.params.email, 'password': req.params.password}, function(err,result){
     if(!err){
         res.send(result);
+        
     }
   });
 };
