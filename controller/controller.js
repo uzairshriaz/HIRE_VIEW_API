@@ -830,9 +830,30 @@ exports.GET_POST_LIKES = function(req,res){
 
 exports.GET_USER_FEED = function(req, res){
   post_array=[];
+  following=[];
   const userID = req.params.userID;
   postModel.find({'userID':userID}).then((result)=>{
-    console.log(result);
+    post_array.push(result);
+    userModel.findById(userID).then((result1)=>{
+      following = result1.following
+      temp = following.length;
+      for(var i=0;i<following.length;i++){
+        postModel.find({'userID':following[i]}).then((result2)=>{
+          post_array.push(result2);
+          temp = temp -1;
+          if(temp===0)
+          {
+            return res.send(post_array);
+          }
+        },(e2)=>{
+          return res.send(e2);
+        });
+      }
+    },(e1)=>{
+      return res.send(e1);
+    });
+    //console.log(result);
+    //return res.send(post_array);
   }, (error)=>{
     return res.send(error);
   });
