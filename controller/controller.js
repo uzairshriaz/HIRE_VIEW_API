@@ -71,10 +71,63 @@ exports.CREATE_USER=function(req,res){
 };
 
 exports.LOGIN = function(req,res){
-  userModel.find({'email': req.params.email, 'password': req.params.password}, function(err,result){
-    if(!err){
-        res.send(result);
+  const usertype = req.body.userType;
+  userModel.find({'email': req.params.email, 'password': req.params.password}).then((result)=>{
+    console.log(result);
+    if(!result[0])
+    {
+      return res.json({"Error":"User Not Found"});
     }
+
+    if(result[0].userType === "Seeker" && result[0])
+    {
+      //console.log("sucewilfc");
+      seekerModel.find({"userID": result[0]._id}).then((result1)=>{
+        //console.log(result1);
+
+        var obj = {
+          "seekerID":result1[0]._id,
+          "user":result[0],
+          "age": result1[0].age,
+          "status": result1[0].status,
+          "postalAddress": result1[0].postalAddress,
+          "skills": result1[0].skills,
+          "skills": result1[0].skills,
+          "expereince": result1[0].expereince,
+        };
+        return res.send(obj);
+
+      }, (error)=>{
+        return res.send(error);
+        console.log(error);
+      });
+    }
+    else if (result[0].userType === "Company" && result[0]){
+      companyModel.find({"userID": result[0]._id}).then((result1)=>{
+        var obj = {
+          "companyID":result1[0]._id,
+          "user":result[0],
+          "numberOfEmployees": result1[0].numberOfEmployees,
+          "dateFounded": result1[0].dateFounded,
+          "status": result1[0].status,
+          "portfolio": result1[0].portfolio,
+          "typeOfCompany": result1[0].typeOfCompany,
+          "contact": result1[0].contact,
+          "Address": result1[0].Address
+        };
+        return res.send(obj);
+
+      }, (error1)=>{
+        res.send(error1)
+        console.log(error1);
+      });
+    }
+    else{
+      return res.json({"Error":"User Not Found"});
+    }
+  }, (error2)=>{
+    return res.send(error2);
+    console.log(error2);
   });
 };
 
@@ -695,6 +748,7 @@ exports.ADD_SEEKER_JOB_RESPONSE=function(req,res){
     return res.send(e);
   });
 };
+
 exports.ADD_COMPANY_JOB_REQUEST_RESPONSE = function(req,res){
   console.log('inside');
   const jobReqID = req.body.jobReqID;
@@ -771,5 +825,15 @@ exports.GET_POST_LIKES = function(req,res){
     }
   },(e1)=>{
     return res.send(e1);
+  });
+};
+
+exports.GET_USER_FEED = function(req, res){
+  post_array=[];
+  const userID = req.params.userID;
+  postModel.find({'userID':userID}).then((result)=>{
+    console.log(result);
+  }, (error)=>{
+    return res.send(error);
   });
 };
