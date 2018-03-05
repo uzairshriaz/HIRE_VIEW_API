@@ -81,9 +81,9 @@ exports.LOGIN = function(req,res){
 
     if(result[0].userType === "Seeker" && result[0])
     {
-      //console.log("sucewilfc");
+      console.log(result[0]._id);
       seekerModel.find({"userID": result[0]._id}).then((result1)=>{
-        //console.log(result1);
+        console.log(result1);
 
         var obj = {
           "seekerID":result1[0]._id,
