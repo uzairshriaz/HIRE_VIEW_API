@@ -20,7 +20,7 @@ var seekerSchema = new Schema({
     status:{type:String,required:true},
     postalAddress:{type:String,required:true},
     skills:[{type:String}],
-    education:[{type:String}],
+    skills:[{type:String}],
     expereince:[{type:String}]
 
 });
