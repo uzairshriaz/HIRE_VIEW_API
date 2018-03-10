@@ -29,5 +29,6 @@ module.exports = function(app){
     app.route('/getPostLikes/:PostID').get(controller.GET_POST_LIKES);
     app.route('/logIn/:email/:password').get(controller.LOGIN);
     app.route('/userFeed/:userID').get(controller.GET_USER_FEED);
+    app.route('/getPostsByUserID/:userID').get(controller.GET_POST_BY_USER_ID);
 
 }

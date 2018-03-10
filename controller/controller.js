@@ -86,28 +86,28 @@ exports.CREATE_USER=function(req,res){
 exports.LOGIN = function(req,res){
   const usertype = req.body.userType;
   userModel.find({'email': req.params.email, 'password': req.params.password}).then((result)=>{
-    console.log(result);
+    console.log(result[0]);
     if(!result[0])
     {
-      return res.json({"Error":"User Not Found"});
+      return res.json([]);
     }
 
-    if(result[0].userType === "Seeker" && result[0] && result[0].status === "1")
+    if(result[0].userType === "seeker" && result[0] && result[0].status === "1")
     {
       console.log(result[0]._id);
       seekerModel.find({"userID": result[0]._id}).then((result1)=>{
         console.log(result1);
 
-        var obj = {
+        var obj = [{
           "seekerID":result1[0]._id,
-          "user":result[0],
+          "person":result[0],
           "age": result1[0].age,
           "status": result1[0].status,
           "postalAddress": result1[0].postalAddress,
           "skills": result1[0].skills,
           "skills": result1[0].skills,
           "expereince": result1[0].expereince,
-        };
+        }];
         return res.send(obj);
 
       }, (error)=>{
@@ -115,11 +115,11 @@ exports.LOGIN = function(req,res){
         console.log(error);
       });
     }
-    else if (result[0].userType === "Company" && result[0] && result[0].status === "1"){
+    else if (result[0].userType === "company" && result[0] && result[0].status === "1"){
       companyModel.find({"userID": result[0]._id}).then((result1)=>{
-        var obj = {
+        var obj = [{
           "companyID":result1[0]._id,
-          "user":result[0],
+          "person":result[0],
           "numberOfEmployees": result1[0].numberOfEmployees,
           "dateFounded": result1[0].dateFounded,
           "status": result1[0].status,
@@ -127,7 +127,7 @@ exports.LOGIN = function(req,res){
           "typeOfCompany": result1[0].typeOfCompany,
           "contact": result1[0].contact,
           "Address": result1[0].Address
-        };
+        }];
         return res.send(obj);
 
       }, (error1)=>{
@@ -136,7 +136,7 @@ exports.LOGIN = function(req,res){
       });
     }
     else{
-      return res.json({"Error":"User Not Found"});
+      return res.json([]);
     }
   }, (error2)=>{
     return res.send(error2);
@@ -166,7 +166,7 @@ exports.CREATE_COMPANY=function(req,res){
 exports.CREATE_POST=function(req,res){
     const newPost = new postModel(req.body);
     newPost.save().then((result)=>{
-      return res.json({"result":result});
+      return res.json({"status":200});
     },(e)=>{
         return res.send(e);
     });
@@ -841,33 +841,127 @@ exports.GET_POST_LIKES = function(req,res){
   });
 };
 
+var _status_ = 0;
+
 exports.GET_USER_FEED = function(req, res){
-  post_array=[];
-  following=[];
   const userID = req.params.userID;
-  postModel.find({'userID':userID}).then((result)=>{
-    post_array.push(result);
-    userModel.findById(userID).then((result1)=>{
-      following = result1.following
-      temp = following.length;
-      for(var i=0;i<following.length;i++){
-        postModel.find({'userID':following[i]}).then((result2)=>{
-          post_array.push(result2);
-          temp = temp -1;
-          if(temp===0)
-          {
-            return res.send(post_array);
-          }
-        },(e2)=>{
-          return res.send(e2);
-        });
+  arrayforPosts = [];
+
+  //console.log(userID);
+  userModel.find({$and:[{'_id':userID},{'status':'1'}]}).then((user)=>{
+    //console.log(user);
+    arrayforFollowingPeople = user[0].following;
+    console.log(arrayforFollowingPeople);
+
+    postModel.find({$and:[{'userID':user[0]._id},{'status':'1'}]}).then((posts)=>{
+
+      for(var i=0 ;i<posts.length;i++)
+      {
+        var obj = {
+          "userType":user[0].userType,
+          "name":user[0].name,
+          "userImage":user[0].userImage,
+          "likes":posts[i].likes.length,
+          "_id":posts[i]._id,
+          "userID":posts[i].userID,
+          "content":posts[i].content,
+          "dateTimeCreated":posts[i].dateTimeCreated,
+          "postType":posts[i].postType,
+          "isReported":posts[i].isReported,
+          "status":posts[i].status,
+        }
+        arrayforPosts.push(obj);
       }
+
+      getFollowingPosts(arrayforFollowingPeople,function (){
+        if(_status_ == 1){
+          res.send(arrayforPosts);
+        }
+      });
+
+    },(e2)=>{
+      res.send(e2);
+    });
+
+  },(e)=>{
+    res.send(e);
+  });
+
+};
+
+function getFollowingPosts(arrayforFollowingPeople,callback){
+
+  for (var k=0 ; k < arrayforFollowingPeople.length ; k++)
+  {
+    userModel.find({$and:[{'_id':arrayforFollowingPeople[k]},{'status':'1'}]}).then((user2)=>{
+      postModel.find({$and:[{'userID':user2[0]._id},{'status':'1'}]}).then((posts2)=>{
+        for(var y = 0; y < posts2.length; y++){
+
+          var obj = {
+            "userType":user2[0].userType,
+            "name":user2[0].name,
+            "userImage":user2[0].userImage,
+            "likes":posts2[y].likes.length,
+            "_id":posts2[y]._id,
+            "userID":posts2[y].userID,
+            "content":posts2[y].content,
+            "dateTimeCreated":posts2[y].dateTimeCreated,
+            "postType":posts2[y].postType,
+            "isReported":posts2[y].isReported,
+            "status":posts2[y].status,
+          }
+          arrayforPosts.push(obj);
+        }
+
+        _status_ = 1;
+
+      },(e4)=>{
+        res.send(e4);
+      });
+    },(e3)=>{
+      res.send(e3);
+    });
+  }
+  
+  callback();
+}
+
+exports.GET_POST_BY_USER_ID =function(req,res){
+  arrayforPosts = [];
+  const userID = req.params.userID;
+  userModel.findById(userID).then((result)=>{
+    postModel.find({$and:[{'userID':result._id},{'status':'1'}]}).then((result1)=>{
+      //console.log(result1);
+      var count = result1.length;
+      for(var i=0 ;i<result1.length;i++)
+      {
+        var obj = {
+          "userType":result.userType,
+          "name":result.name,
+          "userImage":result.userImage,
+          "likes":result1[i].likes.length,
+          "_id":result1[i]._id,
+          "userID":result1[i].userID,
+          "content":result1[i].content,
+          "dateTimeCreated":result1[i].dateTimeCreated,
+          "postType":result1[i].postType,
+          "isReported":result1[i].isReported,
+          "status":result1[i].status,
+        }
+        arrayforPosts.push(obj);
+        count--;
+
+      }
+      if(count === 0){
+        res.send(arrayforPosts);
+      }
+
     },(e1)=>{
-      return res.send(e1);
+
+      res.send(e1);
     });
     //console.log(result);
-    //return res.send(post_array);
-  }, (error)=>{
-    return res.send(error);
+  },(e)=>{
+    res.send(e);
   });
 };
