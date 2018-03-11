@@ -8,6 +8,8 @@ const	jobsModel = mongoose.model('jobsModel');
 const	jobsRequestModel = mongoose.model('jobsRequestModel');
 const	postModel = mongoose.model('postModel');
 const	companyModel = mongoose.model('companyModel');
+const asyncMap = require('async-map');
+const async = require('async');
 
 
 exports.CREATE_USER=function(req,res){
@@ -841,30 +843,25 @@ exports.GET_POST_LIKES = function(req,res){
   });
 };
 
-var _status_ = 0;
-var arrayforFollowingUsers =[];
-var arrayforPosts = [];
 exports.GET_USER_FEED = function(req, res){
   const userID = req.params.userID;
+  arrayforPosts = [];
 
   //console.log(userID);
-  userModel.find({$and:[{'_id':userID},{'status':'1'}]}).then((user)=>
-  {
+  userModel.find({$and:[{'_id':userID},{'status':'1'}]}).then((user)=>{
     //console.log(user);
     arrayforFollowingPeople = user[0].following;
-  // console.log(arrayforFollowingPeople);
+    console.log(arrayforFollowingPeople);
 
-    postModel.find({$and:[{'userID':user[0]._id},{'status':'1'}]}).then((posts)=>
-    {
+    postModel.find({$and:[{'userID':user[0]._id},{'status':'1'}]}).then((posts)=>{
 
       for(var i=0 ;i<posts.length;i++)
       {
-        var obj =
-        {
-          "name":user[0].name,
+        var obj = {
           "userType":user[0].userType,
+          "name":user[0].name,
           "userImage":user[0].userImage,
-          "likes":posts[i].likes.length,
+          "likesCount":posts[i].likes.length,
           "_id":posts[i]._id,
           "userID":posts[i].userID,
           "content":posts[i].content,
@@ -875,64 +872,64 @@ exports.GET_USER_FEED = function(req, res){
         }
         arrayforPosts.push(obj);
       }
-      // second function
-    //  console.log(arrayforFollowingPeople);
-      getFollowersUsers(arrayforFollowingPeople,getFollowersPosts);
 
-    //  res.send(arrayforPosts);
+      getFollowingPosts(arrayforFollowingPeople,function (){
+          res.send(arrayforPosts);
+      });
 
-    },(e2)=>
-    {
+    },(e2)=>{
       res.send(e2);
     });
 
-  },(e)=>
-  {
+  },(e)=>{
     res.send(e);
   });
 
 };
-function getFollowersUsers(arrayforFollowingPeople,callback)
-{
-  count=0;
-  //console.log(arrayforFollowingPeople);
 
-  //console.log(arrayforFollowingUsers);
-  for(var j=0;j<arrayforFollowingPeople.length; j++)
+function getPostsOfEachFollowing(item, doneCallback){
+  userModel.find({$and:[{'_id':item},{'status':'1'}]}).then((user2)=>
   {
-    count++;
-    userModel.findById(arrayforFollowingPeople[j]).then((user)=>
-    {
-      if(user.status === "1"){
-        arrayforFollowingUsers.push(user);
-      }
-
-      if(count==arrayforFollowingPeople.length)
+      postModel.find({$and:[{'userID':user2[0]._id},{'status':'1'}]}).then((posts2)=>
       {
-      //  console.log(arrayforFollowingUsers);
-        callback();
-        //return arrayforFollowingUsers;
-      }
-      //console.log(arrayforFollowingUsers);
-
-    },(userError)=>
-    {
-      res.send(userError);
-    });
-
+        for(var y = 0; y < posts2.length; y++)
+        {
+          var obj = {
+            "userType":user2[0].userType,
+            "name":user2[0].name,
+            "userImage":user2[0].userImage,
+            "likesCount":posts2[y].likes.length,
+            "_id":posts2[y]._id,
+            "userID":posts2[y].userID,
+            "content":posts2[y].content,
+            "dateTimeCreated":posts2[y].dateTimeCreated,
+            "postType":posts2[y].postType,
+            "isReported":posts2[y].isReported,
+            "status":posts2[y].status,
+          }
+          arrayforPosts.push(obj);
+        }
+      },(e4)=>{
+        res.send(e4);
+      });
+  },
+  (e9)=>{ res.send(e9); })
+  .then(()=>
+  {
+    return doneCallback(null); //ye line chalye ge to async.each ke call cack chalye ge
   }
-  //console.log(arrayforFollowingUsers);
-
+  ,(errr)=>
+  {
+  });
 }
 
-function getFollowersPosts()
-{
+function getFollowingPosts(arrayforFollowingPeople,callback1){
 
-
-    console.log(arrayforFollowingUsers);
+  async.each(arrayforFollowingPeople,getPostsOfEachFollowing,function(err){
+    callback1();
+  });
 
 }
-
 
 exports.GET_POST_BY_USER_ID =function(req,res){
   arrayforPosts = [];
@@ -947,7 +944,7 @@ exports.GET_POST_BY_USER_ID =function(req,res){
           "userType":result.userType,
           "name":result.name,
           "userImage":result.userImage,
-          "likes":result1[i].likes.length,
+          "likesCount":result1[i].likes.length,
           "_id":result1[i]._id,
           "userID":result1[i].userID,
           "content":result1[i].content,

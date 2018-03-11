@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "async": "^2.6.0",
+    "async-map": "^0.2.0",
     "express": "^4.16.2",
     "lodash": "^4.17.5",
     "mongoose": "^5.0.6"
