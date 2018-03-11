@@ -16,7 +16,19 @@ exports.CREATE_USER=function(req,res){
     str1 = "seeker";
     str2 = "company";
 
-    const newUser = new userModel(req.body);
+    var userObj = {
+      "name": req.body.name,
+      "email": req.body.email,
+      "contact": req.body.contact,
+      "userName": req.body.userName,
+      "password": req.body.password,
+      "userImage": "new.png",
+      "userType": req.body.userType,
+      "status": "1",
+      "followers": [],
+      "following": []
+    };
+    const newUser = new userModel(userObj);
     const usertype = req.body.userType;
     //console.log(req.body.email);
     userModel.find({$or:[{"email":req.body.email},{"userName":req.body.userName}]}).then((ressult)=>{
@@ -30,7 +42,7 @@ exports.CREATE_USER=function(req,res){
             newObj = {
               "userID":result._id,
               "age":"0",
-              "status":"0",
+              "status":"1",
               "postalAddress":"0",
               "skills":"[]",
               "education":"[]",
@@ -51,7 +63,7 @@ exports.CREATE_USER=function(req,res){
               "numberOfEmployees":"0",
               "dateFounded":"0",
               "postalAddress":"0",
-              "status":"0",
+              "status":"1",
               "portfolio":"[]",
               "typeOfCompany":"[]",
               "contact":"0",
