@@ -842,24 +842,27 @@ exports.GET_POST_LIKES = function(req,res){
 };
 
 var _status_ = 0;
-
+var arrayforFollowingUsers =[];
+var arrayforPosts = [];
 exports.GET_USER_FEED = function(req, res){
   const userID = req.params.userID;
-  arrayforPosts = [];
 
   //console.log(userID);
-  userModel.find({$and:[{'_id':userID},{'status':'1'}]}).then((user)=>{
+  userModel.find({$and:[{'_id':userID},{'status':'1'}]}).then((user)=>
+  {
     //console.log(user);
     arrayforFollowingPeople = user[0].following;
-    console.log(arrayforFollowingPeople);
+  // console.log(arrayforFollowingPeople);
 
-    postModel.find({$and:[{'userID':user[0]._id},{'status':'1'}]}).then((posts)=>{
+    postModel.find({$and:[{'userID':user[0]._id},{'status':'1'}]}).then((posts)=>
+    {
 
       for(var i=0 ;i<posts.length;i++)
       {
-        var obj = {
-          "userType":user[0].userType,
+        var obj =
+        {
           "name":user[0].name,
+          "userType":user[0].userType,
           "userImage":user[0].userImage,
           "likes":posts[i].likes.length,
           "_id":posts[i]._id,
@@ -872,59 +875,64 @@ exports.GET_USER_FEED = function(req, res){
         }
         arrayforPosts.push(obj);
       }
+      // second function
+    //  console.log(arrayforFollowingPeople);
+      getFollowersUsers(arrayforFollowingPeople,getFollowersPosts);
 
-      getFollowingPosts(arrayforFollowingPeople,function (){
-        if(_status_ == 1){
-          res.send(arrayforPosts);
-        }
-      });
+    //  res.send(arrayforPosts);
 
-    },(e2)=>{
+    },(e2)=>
+    {
       res.send(e2);
     });
 
-  },(e)=>{
+  },(e)=>
+  {
     res.send(e);
   });
 
 };
+function getFollowersUsers(arrayforFollowingPeople,callback)
+{
+  count=0;
+  //console.log(arrayforFollowingPeople);
 
-function getFollowingPosts(arrayforFollowingPeople,callback){
-
-  for (var k=0 ; k < arrayforFollowingPeople.length ; k++)
+  //console.log(arrayforFollowingUsers);
+  for(var j=0;j<arrayforFollowingPeople.length; j++)
   {
-    userModel.find({$and:[{'_id':arrayforFollowingPeople[k]},{'status':'1'}]}).then((user2)=>{
-      postModel.find({$and:[{'userID':user2[0]._id},{'status':'1'}]}).then((posts2)=>{
-        for(var y = 0; y < posts2.length; y++){
+    count++;
+    userModel.findById(arrayforFollowingPeople[j]).then((user)=>
+    {
+      if(user.status === "1"){
+        arrayforFollowingUsers.push(user);
+      }
 
-          var obj = {
-            "userType":user2[0].userType,
-            "name":user2[0].name,
-            "userImage":user2[0].userImage,
-            "likes":posts2[y].likes.length,
-            "_id":posts2[y]._id,
-            "userID":posts2[y].userID,
-            "content":posts2[y].content,
-            "dateTimeCreated":posts2[y].dateTimeCreated,
-            "postType":posts2[y].postType,
-            "isReported":posts2[y].isReported,
-            "status":posts2[y].status,
-          }
-          arrayforPosts.push(obj);
-        }
+      if(count==arrayforFollowingPeople.length)
+      {
+      //  console.log(arrayforFollowingUsers);
+        callback();
+        //return arrayforFollowingUsers;
+      }
+      //console.log(arrayforFollowingUsers);
 
-        _status_ = 1;
-
-      },(e4)=>{
-        res.send(e4);
-      });
-    },(e3)=>{
-      res.send(e3);
+    },(userError)=>
+    {
+      res.send(userError);
     });
+
   }
-  
-  callback();
+  //console.log(arrayforFollowingUsers);
+
 }
+
+function getFollowersPosts()
+{
+
+
+    console.log(arrayforFollowingUsers);
+
+}
+
 
 exports.GET_POST_BY_USER_ID =function(req,res){
   arrayforPosts = [];
