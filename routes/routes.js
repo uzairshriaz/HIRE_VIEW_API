@@ -1,5 +1,6 @@
 module.exports = function(app){
     var controller = require('../controller/controller');
+    var controller2 = require('../controller/controller2');
 
     app.route('/createUser').post(controller.CREATE_USER);
     app.route('/createSeeker').post(controller.CREATE_SEEKER);
@@ -30,5 +31,9 @@ module.exports = function(app){
     app.route('/logIn/:email/:password').get(controller.LOGIN);
     app.route('/userFeed/:userID').get(controller.GET_USER_FEED);
     app.route('/getPostsByUserID/:userID').get(controller.GET_POST_BY_USER_ID);
+    app.route('/getAllJobs').get(controller2.GET_ALL_JOBS);
+    app.route('/getMyJobsRequests/:seekerID').get(controller2.GET_MY_JOBS_REQUEST);
+    app.route('/getMyJobs/:companyID').get(controller2.GET_MY_JOBS);
+    app.route('/getAllJobRequests').get(controller2.GET_ALL_JOB_REQUESTS);
 
 }

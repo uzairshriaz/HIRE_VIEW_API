@@ -51,7 +51,7 @@ exports.CREATE_USER=function(req,res){
               "numberOfEmployees":"0",
               "dateFounded":"0",
               "postalAddress":"0",
-              "status":"[]",
+              "status":"0",
               "portfolio":"[]",
               "typeOfCompany":"[]",
               "contact":"0",
@@ -874,6 +874,7 @@ exports.GET_USER_FEED = function(req, res){
       }
 
       getFollowingPosts(arrayforFollowingPeople,function (){
+        //console.log(arrayforPosts);
           res.send(arrayforPosts);
       });
 
