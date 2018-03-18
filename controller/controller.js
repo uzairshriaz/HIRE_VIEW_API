@@ -100,7 +100,7 @@ exports.CREATE_USER=function(req,res){
 exports.LOGIN = function(req,res){
   const usertype = req.body.userType;
   userModel.find({'email': req.params.email, 'password': req.params.password}).then((result)=>{
-    console.log(result[0]);
+    //console.log(result[0]);
     if(!result[0])
     {
       return res.json([]);
@@ -108,9 +108,9 @@ exports.LOGIN = function(req,res){
 
     if(result[0].userType === "seeker" && result[0] && result[0].status === "1")
     {
-      console.log(result[0]._id);
+      //console.log(result[0]._id);
       seekerModel.find({"userID": result[0]._id}).then((result1)=>{
-        console.log(result1);
+        //console.log(result1);
 
         var obj = [{
           "seekerID":result1[0]._id,
@@ -126,10 +126,11 @@ exports.LOGIN = function(req,res){
 
       }, (error)=>{
         return res.send(error);
-        console.log(error);
+        //console.log(error);
       });
     }
     else if (result[0].userType === "company" && result[0] && result[0].status === "1"){
+    //  console.log("company");
       companyModel.find({"userID": result[0]._id}).then((result1)=>{
         var obj = [{
           "companyID":result1[0]._id,
@@ -146,7 +147,7 @@ exports.LOGIN = function(req,res){
 
       }, (error1)=>{
         res.send(error1)
-        console.log(error1);
+        //console.log(error1);
       });
     }
     else{
@@ -154,7 +155,7 @@ exports.LOGIN = function(req,res){
     }
   }, (error2)=>{
     return res.send(error2);
-    console.log(error2);
+    //console.log(error2);
   });
 };
 

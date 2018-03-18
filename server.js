@@ -3,16 +3,19 @@ var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 app = express();
 
-var userModel = require('./models/models');
+
 
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/HireViewdb',{
     //useMongoClient : true,
 });
+//var userModel = require('./models/models.js');
+//mongoose.model('seekerModel');
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 
+var userModel = require('./models/models');
 var routes = require('./routes/routes');
 routes(app);
 

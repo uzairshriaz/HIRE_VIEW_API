@@ -31,9 +31,11 @@ module.exports = function(app){
     app.route('/logIn/:email/:password').get(controller.LOGIN);
     app.route('/userFeed/:userID').get(controller.GET_USER_FEED);
     app.route('/getPostsByUserID/:userID').get(controller.GET_POST_BY_USER_ID);
-    app.route('/getAllJobs').get(controller2.GET_ALL_JOBS);
     app.route('/getMyJobsRequests/:seekerID').get(controller2.GET_MY_JOBS_REQUEST);
     app.route('/getMyJobs/:companyID').get(controller2.GET_MY_JOBS);
-    app.route('/getAllJobRequests').get(controller2.GET_ALL_JOB_REQUESTS);
+    app.route('/getAllJobsByCompanyID/:companyID').get(controller2.GET_ALL_JOBS_BY_COMPANY_ID);
+    app.route('/getAlljobsRequesBySeekerID/:seekerID').get(controller2.GET_ALL_JOBS_REQUEST_BY_SEEKER_ID);
+    app.route('/getAllJobs').get(controller2.GET_ALL_JOBS);
+    app.route('/getAlljobsRequests').get(controller2.GET_ALL_JOBS_REQUESTS);
 
 }
