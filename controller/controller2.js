@@ -122,7 +122,6 @@ exports.GET_ALL_JOBS=function(req,res){
           {
             res.send(arrayForSendingData);
           }
-
         }
       });
     });
