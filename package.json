@@ -11,9 +11,13 @@
   "dependencies": {
     "async": "^2.6.0",
     "async-map": "^0.2.0",
+    "base64-to-image": "^1.0.2",
     "express": "^4.16.2",
+    "fs": "0.0.1-security",
     "lodash": "^4.17.5",
-    "mongoose": "^5.0.6"
+    "mongoose": "^5.0.6",
+    "node-base64-image": "^1.0.4",
+    "path": "^0.12.7"
   },
   "devDependencies": {
     "nodemon": "^1.17.1"

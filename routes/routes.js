@@ -16,10 +16,10 @@ module.exports = function(app){
     app.route('/getCompanyByID/:companyID').get(controller.GET_COMPANY_BY_ID);
     app.route('/removeComapnyByID/:companyID').patch(controller.REMOVE_COMPANY_BY_ID);
     app.route('/updateCompany').patch(controller.UPDATE_COMPANY);
-    app.route('/followUser').patch(controller.FOLLOW_USER);
-    app.route('/unfollowUser').patch(controller.UNFOLLOW_USER);
-    app.route('/likePost').patch(controller.LIKE_POST);
-    app.route('/unlikePost').patch(controller.UNLIKE_POST);
+    app.route('/followUser/:followerID/:followingID').get(controller.FOLLOW_USER);
+    app.route('/unfollowUser/:followerID/:followingID').get(controller.UNFOLLOW_USER);
+    app.route('/likePost/:postID/:likerID').get(controller.LIKE_POST);
+    app.route('/unlikePost/:postID/:likerID').get(controller.UNLIKE_POST);
     app.route('/createAnswer').post(controller.CREATE_ANSWER);
     app.route('/removeAnswer').patch(controller.REMOVE_ANSWER);
     app.route('/updateAnswer').patch(controller.UPDATE_ANSWER);
@@ -37,5 +37,7 @@ module.exports = function(app){
     app.route('/getAlljobsRequesBySeekerID/:seekerID').get(controller2.GET_ALL_JOBS_REQUEST_BY_SEEKER_ID);
     app.route('/getAllJobs').get(controller2.GET_ALL_JOBS);
     app.route('/getAlljobsRequests').get(controller2.GET_ALL_JOBS_REQUESTS);
+    app.route('/saveImage').post(controller2.SAVE_IMAGE);
+    app.route('/images/:imagePath').get(controller2.GET_IMAGE);
 
 }

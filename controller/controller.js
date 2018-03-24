@@ -364,8 +364,8 @@ exports.UPDATE_COMPANY = function(req,res){
 };
 
 exports.FOLLOW_USER = function(req,res){
-  const followerID = req.body.followerID; // 1 na 2 ko follow krna
-  const followingID = req.body.followingID;
+  const followerID = req.params.followerID; // 1 na 2 ko follow krna
+  const followingID = req.params.followingID;
   var flag = false;
   var text = '{ "object":"'+followingID+'"}';
   userModel.findById(followerID).then((result1)=>{
@@ -414,9 +414,9 @@ exports.FOLLOW_USER = function(req,res){
 
 
 exports.UNFOLLOW_USER = function(req,res){
-  console.log('unfollow');
-  const followerID = req.body.followerID;
-  const followingID = req.body.followingID;
+  //console.log('unfollow');
+  const followerID = req.params.followerID;
+  const followingID = req.params.followingID;
   var flag = false;
   var text = '{ "object":"'+followingID+'"}';
   var text2 = '{ "objectfr":"'+followerID+'"}';
@@ -459,7 +459,7 @@ exports.UNFOLLOW_USER = function(req,res){
             arrayoffollowers.splice(ind,1);
             result2.followers = arrayoffollowers;
             result2.save();
-            res.send({"status":"UN-followed successfully"});
+            return res.status(200).send({"status":"UN-followed successfully"});
           }
           else {
             return res.status(404).json({"status":"already unfollowed"}).send();
@@ -487,8 +487,8 @@ exports.UNFOLLOW_USER = function(req,res){
 
 exports.LIKE_POST = function(req,res){
   console.log('like');
-  const postID = req.body.postID;
-  const likerID = req.body.likerID;
+  const postID = req.params.postID;
+  const likerID = req.params.likerID;
   var text = '{ "object":"'+likerID+'"}';
   var flag = false;
   var index;
@@ -519,7 +519,7 @@ exports.LIKE_POST = function(req,res){
               arrayOfLikes.push(userID);
               result1.likes = arrayOfLikes;
               result1.save();
-              res.json({"status":"liked :) "});
+              return res.status(200).json({"status":"liked :) "});
           }
         }else {
           return res.status(404).json({"status":"user deactivated"});
@@ -541,8 +541,8 @@ exports.LIKE_POST = function(req,res){
 
 exports.UNLIKE_POST = function(req,res){
   console.log('unlike');
-  const postID = req.body.postID;
-  const likerID = req.body.likerID;
+  const postID = req.params.postID;
+  const likerID = req.params.likerID;
   var text = '{"object":"'+likerID+'"}'
   var obj = JSON.parse(text);
   var index = -1;
@@ -564,7 +564,7 @@ exports.UNLIKE_POST = function(req,res){
         arrayOfLikes.splice(index,1);
         result1.likes = arrayOfLikes;
         result1.save();
-        res.json({"status":"unliked succesffully"});
+         return res.status(200).json({"status":"unliked succesffully"});
       }else {
         return res.status(404).json({"status":"already unliked or like not found"});
       }
@@ -720,18 +720,21 @@ exports.CREATE_JOB_REQUEST = function(req,res){
   console.log(' create job request');
   const jobRequest = new jobsRequestModel(req.body);
   jobRequest.save().then((result)=>{
-    res.json({"result":result});
+    res.send(result);
   },(e)=>{
-    res.status(404).json({"status":"error in creation"});
+    res.send(e);
   });
 };
 exports.CREATE_JOB = function(req,res){
   console.log('create job ');
   const job = new jobsModel(req.body);
   job.save().then((result)=>{
-    res.json({"result":result});
+    var obj = {
+      "result":result
+    }
+    res.send(obj);
   },(e)=>{
-    res.status(404).json({"status":"error in creation"});
+    res.send(e);
   });
 };
 exports.ADD_SEEKER_JOB_RESPONSE=function(req,res){
@@ -858,13 +861,14 @@ exports.GET_POST_LIKES = function(req,res){
 
 exports.GET_USER_FEED = function(req, res){
   const userID = req.params.userID;
+
   arrayforPosts = [];
 
   //console.log(userID);
   userModel.find({$and:[{'_id':userID},{'status':'1'}]}).then((user)=>{
     //console.log(user);
     arrayforFollowingPeople = user[0].following;
-    console.log(arrayforFollowingPeople);
+  //  console.log(arrayforFollowingPeople);
 
     postModel.find({$and:[{'userID':user[0]._id},{'status':'1'}]}).then((posts)=>{
 
@@ -882,13 +886,17 @@ exports.GET_USER_FEED = function(req, res){
           "postType":posts[i].postType,
           "isReported":posts[i].isReported,
           "status":posts[i].status,
+          "userObject":user[0]
         }
         arrayforPosts.push(obj);
       }
 
       getFollowingPosts(arrayforFollowingPeople,function (){
         //console.log(arrayforPosts);
+        setTimeout(function() {
           res.send(arrayforPosts);
+        }, 4000);
+
       });
 
     },(e2)=>{
@@ -906,6 +914,7 @@ function getPostsOfEachFollowing(item, doneCallback){
   {
       postModel.find({$and:[{'userID':user2[0]._id},{'status':'1'}]}).then((posts2)=>
       {
+        //console.log(posts2);
         for(var y = 0; y < posts2.length; y++)
         {
           var obj = {
@@ -920,6 +929,7 @@ function getPostsOfEachFollowing(item, doneCallback){
             "postType":posts2[y].postType,
             "isReported":posts2[y].isReported,
             "status":posts2[y].status,
+            "userObject":user2[0]
           }
           arrayforPosts.push(obj);
         }
@@ -930,6 +940,7 @@ function getPostsOfEachFollowing(item, doneCallback){
   (e9)=>{ res.send(e9); })
   .then(()=>
   {
+  //  console.log(arrayforPosts);
     return doneCallback(null); //ye line chalye ge to async.each ke call cack chalye ge
   }
   ,(errr)=>
@@ -940,7 +951,10 @@ function getPostsOfEachFollowing(item, doneCallback){
 function getFollowingPosts(arrayforFollowingPeople,callback1){
 
   async.each(arrayforFollowingPeople,getPostsOfEachFollowing,function(err){
-    callback1();
+    if(!err){
+      callback1();
+    }
+
   });
 
 }
