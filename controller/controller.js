@@ -243,16 +243,50 @@ exports.UPDATE_USER=(req,res)=>{
 
 exports.GET_USER_BY_ID=function(req,res){
   const id = req.params.userID;
-  userModel.findById(id).then((result)=>{
-    if(result && result.status === "1")
-    {
-      res.send(result);
+    //var userID=0;
+  userModel.findById(id).then((userResult)=>{
+    if(userResult.userType == "company"){
+      //company
+      console.log("company");
+      companyModel.find({"userID":id}).then((companyResult)=>{
+        var obj = [{
+          "companyID":companyResult[0]._id,
+          "person":userResult,
+          "numberOfEmployees":companyResult[0].numberOfEmployees,
+          "dateFounded":companyResult[0].dateFounded,
+          "status": companyResult[0].status,
+          "portfolio": companyResult[0].portfolio,
+          "typeOfCompany": companyResult[0].typeOfCompany,
+          "contact": companyResult[0].contact,
+          "Address": companyResult[0].Address
+        }];
+        res.send(obj);
+      },(companyError)=>{
+        return res.send(companyError);
+      });
     }else {
-      res.status(404).send();
+      //seeker
+      console.log("seeker");
+      seekerModel.find({"userID":id}).then((seekerResult)=>{
+        var obj = [{
+          "seekerID":seekerResult[0]._id,
+          "person":userResult,
+          "age": seekerResult[0].age,
+          "status": seekerResult[0].status,
+          "postalAddress": seekerResult[0].postalAddress,
+          "skills": seekerResult[0].skills,
+          "skills": seekerResult[0].skills,
+          "expereince": seekerResult[0].expereince,
+        }];
+        return res.send(obj);
+      },(seekerError)=>{
+        return res.send(seekerError);
+      });
     }
-  },(e)=>{
-    res.send(e);
+  },(userError)=>{
+    res.send(userError);
   });
+
 
 };
 
@@ -329,7 +363,22 @@ exports.GET_COMPANY_BY_ID = function(req,res){
   companyModel.findById(id).then((result)=>{
     if(result && result.status ==="1")
     {
-      res.send(result);
+      userModel.findById(result.userID).then((userResult)=>{
+        var obj = [{
+          "companyID":result._id,
+          "person":userResult,
+          "numberOfEmployees": result.numberOfEmployees,
+          "dateFounded": result.dateFounded,
+          "status": result.status,
+          "portfolio": result.portfolio,
+          "typeOfCompany": result.typeOfCompany,
+          "contact": result.contact,
+          "Address": result.Address
+        }];
+        res.send(obj);
+      },(userError)=>{
+        return res.status(404).send(userError);
+      });
     }
     else{
       return res.status(404).send({"status":"not found"});
@@ -720,7 +769,7 @@ exports.CREATE_JOB_REQUEST = function(req,res){
   console.log(' create job request');
   const jobRequest = new jobsRequestModel(req.body);
   jobRequest.save().then((result)=>{
-    res.send(result);
+    return res.json({'result':result});
   },(e)=>{
     res.send(e);
   });
@@ -874,10 +923,16 @@ exports.GET_USER_FEED = function(req, res){
 
       for(var i=0 ;i<posts.length;i++)
       {
+        arrayofLikesID = posts[i].likes;
+        if(arrayofLikesID.indexOf(userID)> -1)
+        {
+
+        }
         var obj = {
           "userType":user[0].userType,
           "name":user[0].name,
           "userImage":user[0].userImage,
+          "likes":posts[i].likes,
           "likesCount":posts[i].likes.length,
           "_id":posts[i]._id,
           "userID":posts[i].userID,
@@ -895,7 +950,7 @@ exports.GET_USER_FEED = function(req, res){
         //console.log(arrayforPosts);
         setTimeout(function() {
           res.send(arrayforPosts);
-        }, 4000);
+        }, 2500);
 
       });
 
@@ -921,6 +976,7 @@ function getPostsOfEachFollowing(item, doneCallback){
             "userType":user2[0].userType,
             "name":user2[0].name,
             "userImage":user2[0].userImage,
+            "likes":posts2[y].likes,
             "likesCount":posts2[y].likes.length,
             "_id":posts2[y]._id,
             "userID":posts2[y].userID,
@@ -941,7 +997,7 @@ function getPostsOfEachFollowing(item, doneCallback){
   .then(()=>
   {
   //  console.log(arrayforPosts);
-    return doneCallback(null); //ye line chalye ge to async.each ke call cack chalye ge
+    return doneCallback(null); //ye line chalye ge to async.each ke call back chalye ge
   }
   ,(errr)=>
   {

@@ -1,6 +1,20 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+var educationSchema = new Schema({
+    tenureStart:{type:String,required:true},
+    tenureEnd:{type:String,required:true},
+    degreeName:{type:String,required:true},
+    institueName:{type:String,required:true}
+});
+var experineceSchema = new Schema({
+    tenureStart:{type:String,required:true},
+    tenureEnd:{type:String,required:true},
+    designation:{type:String,required:true},
+    companyName:{type:String,required:true}
+});
+
+
 var userSchema = new Schema({
     name:{type:String,required:true},
     email:{type:String,required:true},
@@ -20,8 +34,8 @@ var seekerSchema = new Schema({
     status:{type:String,required:true},
     postalAddress:{type:String,required:true},
     skills:[{type:String}],
-    skills:[{type:String}],
-    expereince:[{type:String}]
+    education:[educationSchema],
+    expereince:[experineceSchema]
 
 });
 
@@ -92,3 +106,5 @@ module.exports = mongoose.model('jobsModel',jobsSchema,'jobs');
 module.exports = mongoose.model('jobsRequestModel',jobRequestSchema,'jobsRequest');
 module.exports = mongoose.model('postModel',postSchema,'post');
 module.exports = mongoose.model('companyModel',companySchema,'company');
+module.exports = mongoose.model('educationModel',educationSchema,'education');
+module.exports = mongoose.model('expereinceModel',experineceSchema,'experinece');

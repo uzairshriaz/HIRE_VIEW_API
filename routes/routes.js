@@ -39,5 +39,8 @@ module.exports = function(app){
     app.route('/getAlljobsRequests').get(controller2.GET_ALL_JOBS_REQUESTS);
     app.route('/saveImage').post(controller2.SAVE_IMAGE);
     app.route('/images/:imagePath').get(controller2.GET_IMAGE);
+    app.route('/addExpereince').post(controller2.ADD_EXPEREINCE);
+    app.route('/addEducation').post(controller2.ADD_EDUCATION);
+    app.route('/addSkills').post(controller2.ADD_SKILLS);
 
 }

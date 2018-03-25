@@ -9,11 +9,14 @@ const	jobsModel = mongoose.model('jobsModel');
 const	jobsRequestModel = mongoose.model('jobsRequestModel');
 const	postModel = mongoose.model('postModel');
 const	companyModel = mongoose.model('companyModel');
+const	educationModel = mongoose.model('educationModel');
+const expereinceModel = mongoose.model('expereinceModel');
 const asyncMap = require('async-map');
 const async = require('async');
 const path = require('path');
 const fs = require('fs');
 var converter = require('node-base64-image');
+const elasticsearch = require('elasticsearch');
 
 
 
@@ -120,7 +123,8 @@ exports.GET_ALL_JOBS=function(req,res){
           var obj = {
             "companyName":arrayForAllUsers[i].name,
             "companyStatus":arrayForAllCompanies[i].status,
-            "jobs":arrayForAllJobs[i]
+            "jobs":arrayForAllJobs[i],
+            "companyLogo":arrayForAllUsers[i].userImage
           };
           arrayForSendingData.push(obj);
           if(count == arrayForAllJobs.length)
@@ -193,7 +197,8 @@ exports.GET_ALL_JOBS_REQUESTS = function(req,res){
           var obj={
 
             "seekerName":arrayForAllUsers[i].name,
-            "jobsRequest":arrayForJobsRequests[i]
+            "jobsRequest":arrayForJobsRequests[i],
+            "seekerLogo":arrayForAllUsers[i].userImage
           };
 
           arrayForSendingData.push(obj);
@@ -235,8 +240,8 @@ function getseekersData(item,getSeekerCallback){
 }
 //save image
 exports.SAVE_IMAGE =function(req,res){
-    const imageType = req.body.ImageType;
-    const base64str = req.body.base64string;
+    const imageType = req.body.imageType;
+    const base64str = req.body.image;
     const userID=req.body.userID;
     var appDir = path.dirname(require.main.filename);
 
@@ -271,7 +276,91 @@ exports.GET_IMAGE =function(req,res){
     var img = fs.readFileSync(newPath);
     res.writeHead(200, {'Content-Type': 'image/'+arr[1] });
     res.end(img,'binary');
-}
 
+}
+}
+//Add experinece
+exports.ADD_EXPEREINCE =function(req,res){
+  const tenureStart = req.body.tenureStart;
+  const tenureEnd = req.body.tenureEnd;
+  const designation = req.body.designation;
+  const companyName = req.body.companyName;
+  const seekerID = req.body.seekerID;
+
+  var obj = {
+    "tenureStart":tenureStart,
+    "tenureEnd"  :tenureEnd,
+    "designation":designation,
+    "companyName":companyName
+  }
+
+  const newExpereinceModel = new expereinceModel(obj);
+  seekerModel.findById(seekerID).then((seekerResult)=>{
+    seekerResult.expereince.push(obj);
+    seekerResult.save().then((result2)=>{
+      res.send(result2.expereince);
+    },(err2)=>{
+      return res.send(err2);
+    });
+  },(seekerError)=>{
+    return res.send(seekerError);
+  });
+
+}
+//ADD education
+exports.ADD_EDUCATION =function(req,res){
+  const tenureStart = req.body.tenureStart;
+  const tenureEnd = req.body.tenureEnd;
+  const institueName = req.body.institueName;
+  const degreeName = req.body.degreeName;
+  const seekerID = req.body.seekerID;
+
+  var obj = {
+    "tenureStart":tenureStart,
+    "tenureEnd"  :tenureEnd,
+    "institueName":institueName,
+    "degreeName":degreeName
+  }
+
+  const newEducationModel = new educationModel(obj);
+  seekerModel.findById(seekerID).then((seekerResult)=>{
+    seekerResult.education.push(obj);
+    seekerResult.save().then((result2)=>{
+      res.send(result2.education);
+    },(err2)=>{
+      return res.send(err2);
+    });
+  },(seekerError)=>{
+    return res.send(seekerError);
+  });
+
+}
+exports.ADD_SKILLS = function(req,res){
+  const seekerID = req.body.seekerID;
+  const skills = req.body.skills;
+  seekerModel.findById(seekerID).then((seekerResult)=>{
+    arrayForSeekerSkills = seekerResult.skills;
+    var temp =0;
+    for(var i=0;i<skills.length;i++)
+    {
+      temp++;
+      if(seekerResult.skills.indexOf(skills[i]) <= -1){
+        seekerResult.skills.push(skills[i]);
+      }
+
+    }
+    if(temp == skills.length)
+    {
+        seekerResult.save().then((result2)=>{
+          return res.send(result2.skills);
+        }),(err2)=>{
+          return res.send(err2);
+        };
+
+    }
+
+  },(seekerError)=>{
+    return res.send(seekerError);
+  });
 
 }
