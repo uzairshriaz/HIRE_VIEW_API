@@ -44,11 +44,12 @@ exports.CREATE_USER=function(req,res){
               "age":"0",
               "status":"1",
               "postalAddress":"0",
-              "skills":"[]",
-              "education":"[]",
-              "expereince":"[]"
+              "skills":[],
+              "education":[],
+              "expereince":[]
             }
             const newSeeker = new seekerModel(newObj);
+            console.log(newSeeker);
             newSeeker.save().then((result6)=>{
               res.json({"seekerID":result6._id,"userObject":result});
             },(e1)=>{
@@ -119,7 +120,7 @@ exports.LOGIN = function(req,res){
           "status": result1[0].status,
           "postalAddress": result1[0].postalAddress,
           "skills": result1[0].skills,
-          "skills": result1[0].skills,
+          "education": result1[0].education,
           "expereince": result1[0].expereince,
         }];
         return res.send(obj);
@@ -229,10 +230,49 @@ exports.REMOVE_POST=(req,res)=>{
 };
 
 exports.UPDATE_USER=(req,res)=>{
-  const userID = req.params.userID;
+  const userID = req.body.person._id;
   var obj = req.body;
+  console.log(obj);
   userModel.findByIdAndUpdate(userID,{$set:obj},{new:true}).then((result)=>{
-    res.json({status:"updated Successfully"});
+    console.log(result);
+    if(result.userType == "seeker"){
+      //seeker
+      seekerModel.findOne({"userID":result._id}).then((seekerResult)=>{
+        var obj = [{
+          "seekerID":seekerResult._id,
+          "person":result,
+          "age": seekerResult.age,
+          "status": seekerResult.status,
+          "postalAddress": seekerResult.postalAddress,
+          "skills": seekerResult.skills,
+          "education": seekerResult.education,
+          "expereince": seekerResult.expereince,
+        }];
+        return res.send(obj);
+
+      },(seekerError)=>{
+        res.send(seekerError);
+      });
+    }
+    else{
+      //company
+      companyModel.findOne({"userID":result._id}).then((companyResult)=>{
+        var obj = [{
+          "companyID":companyResult._id,
+          "person":result,
+          "numberOfEmployees": companyResult.numberOfEmployees,
+          "dateFounded": companyResult.dateFounded,
+          "status": companyResult.status,
+          "portfolio": companyResult.portfolio,
+          "typeOfCompany": companyResult.typeOfCompany,
+          "contact": companyResult.contact,
+          "Address":companyResult.Address
+        }];
+
+      },(companyError)=>{
+        res.send(companyError);
+      });
+    }
 
   },(e)=>{
     res.send(e);
@@ -245,6 +285,7 @@ exports.GET_USER_BY_ID=function(req,res){
   const id = req.params.userID;
     //var userID=0;
   userModel.findById(id).then((userResult)=>{
+  //  console.log(userResult);
     if(userResult.userType == "company"){
       //company
       console.log("company");
@@ -275,7 +316,7 @@ exports.GET_USER_BY_ID=function(req,res){
           "status": seekerResult[0].status,
           "postalAddress": seekerResult[0].postalAddress,
           "skills": seekerResult[0].skills,
-          "skills": seekerResult[0].skills,
+          "education": seekerResult[0].education,
           "expereince": seekerResult[0].expereince,
         }];
         return res.send(obj);
@@ -950,7 +991,7 @@ exports.GET_USER_FEED = function(req, res){
         //console.log(arrayforPosts);
         setTimeout(function() {
           res.send(arrayforPosts);
-        }, 2500);
+        }, 3000);
 
       });
 
@@ -1028,6 +1069,7 @@ exports.GET_POST_BY_USER_ID =function(req,res){
           "userType":result.userType,
           "name":result.name,
           "userImage":result.userImage,
+          "likes":result1[i].likes,
           "likesCount":result1[i].likes.length,
           "_id":result1[i]._id,
           "userID":result1[i].userID,
@@ -1036,6 +1078,8 @@ exports.GET_POST_BY_USER_ID =function(req,res){
           "postType":result1[i].postType,
           "isReported":result1[i].isReported,
           "status":result1[i].status,
+          "userObject":result
+
         }
         arrayforPosts.push(obj);
         count--;

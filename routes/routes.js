@@ -9,7 +9,7 @@ module.exports = function(app){
     app.route('/getUserById/:userID').get(controller.GET_USER_BY_ID);
     app.route('/removeUser/:userID').patch(controller.REMOVE_USER);
     app.route('/removePost/:postID').patch(controller.REMOVE_POST);
-    app.route('/updateUser/:userID').patch(controller.UPDATE_USER);
+    app.route('/updateUser').post(controller.UPDATE_USER);
     app.route('/postById/:postID').get(controller.GET_POST_BY_ID);
     app.route('/removeSeeker/:seekerID').patch(controller.REMOVE_SEEKER);
     app.route('/getSeekerByID/:seekerID').get(controller.GET_SEEKER_BY_ID);
@@ -35,12 +35,16 @@ module.exports = function(app){
     app.route('/getMyJobs/:companyID').get(controller2.GET_MY_JOBS);
     app.route('/getAllJobsByCompanyID/:companyID').get(controller2.GET_ALL_JOBS_BY_COMPANY_ID);
     app.route('/getAlljobsRequesBySeekerID/:seekerID').get(controller2.GET_ALL_JOBS_REQUEST_BY_SEEKER_ID);
-    app.route('/getAllJobs').get(controller2.GET_ALL_JOBS);
+  //  app.route('/getAllJobs').get(controller2.GET_ALL_JOBS);
     app.route('/getAlljobsRequests').get(controller2.GET_ALL_JOBS_REQUESTS);
     app.route('/saveImage').post(controller2.SAVE_IMAGE);
     app.route('/images/:imagePath').get(controller2.GET_IMAGE);
-    app.route('/addExpereince').post(controller2.ADD_EXPEREINCE);
+    app.route('/addExperience').post(controller2.ADD_EXPEREINCE);
     app.route('/addEducation').post(controller2.ADD_EDUCATION);
     app.route('/addSkills').post(controller2.ADD_SKILLS);
+    app.route('/getAnswersByPostID/:postID').get(controller2.GET_ANSWERS_BY_POST_ID);
+    app.route('/searchUser/:text').get(controller2.SEARCH_USER);
+    app.route('/getAlljobs').get(controller2.GET_ALL_JOBS2);
+    app.route('/userFeed2/:userID').get(controller2.GET_USER_FEED2);
 
 }
