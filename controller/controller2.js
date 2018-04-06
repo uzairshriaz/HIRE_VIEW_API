@@ -474,8 +474,10 @@ function getUserObj(item,donecallback){
 exports.SEARCH_USER= function(req,res)
 {
   text = req.params.text;
-  userModel.find({"name":new RegExp('^' + req.params.text + '$', "i")}).then((searchResult)=>{
+//  var query = { text: /^*/ };
+  userModel.find({"name": new RegExp(text, 'i')}).then((searchResult)=>{
     res.send(searchResult);
+
   },(searchError)=>{
     res.send(searchError);
   });

@@ -29,7 +29,7 @@ module.exports = function(app){
     app.route('/addCompanyJobRequestResponse').patch(controller.ADD_COMPANY_JOB_REQUEST_RESPONSE);
     app.route('/getPostLikes/:PostID').get(controller.GET_POST_LIKES);
     app.route('/logIn/:email/:password').get(controller.LOGIN);
-    app.route('/userFeed/:userID').get(controller.GET_USER_FEED);
+    //app.route('/userFeed/:userID').get(controller.GET_USER_FEED);
     app.route('/getPostsByUserID/:userID').get(controller.GET_POST_BY_USER_ID);
     app.route('/getMyJobsRequests/:seekerID').get(controller2.GET_MY_JOBS_REQUEST);
     app.route('/getMyJobs/:companyID').get(controller2.GET_MY_JOBS);
@@ -45,6 +45,6 @@ module.exports = function(app){
     app.route('/getAnswersByPostID/:postID').get(controller2.GET_ANSWERS_BY_POST_ID);
     app.route('/searchUser/:text').get(controller2.SEARCH_USER);
     app.route('/getAlljobs').get(controller2.GET_ALL_JOBS2);
-    app.route('/userFeed2/:userID').get(controller2.GET_USER_FEED2);
+    app.route('/userFeed/:userID').get(controller2.GET_USER_FEED2);
 
 }
