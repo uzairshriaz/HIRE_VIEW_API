@@ -46,5 +46,7 @@ module.exports = function(app){
     app.route('/searchUser/:text').get(controller2.SEARCH_USER);
     app.route('/getAlljobs').get(controller2.GET_ALL_JOBS2);
     app.route('/userFeed/:userID').get(controller2.GET_USER_FEED2);
+    app.route('/verifyEmail').post(controller.VERIFY_EMAIL);
+
 
 }

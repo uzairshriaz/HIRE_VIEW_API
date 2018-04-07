@@ -24,6 +24,8 @@ var userSchema = new Schema({
     userImage:{type:String,required:true},
     userType:{type:String,required:true},
     status:{type:String,required:true},
+    confirmed:{ type: Boolean, default: false,required:true},
+    secretToken:{type:String,required:true},
     following:[{type:Schema.Types.ObjectId,ref:"user"}],
     followers:[{type:Schema.Types.ObjectId,ref:"user"}]
 });

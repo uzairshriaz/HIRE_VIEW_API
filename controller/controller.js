@@ -11,6 +11,8 @@ const	companyModel = mongoose.model('companyModel');
 const asyncMap = require('async-map');
 const async = require('async');
 const bcrypt = require('bcrypt');
+const randomstring = require('randomstring');
+const nodemailer = require('nodemailer');
 
 
 exports.CREATE_USER=function(req,res){
@@ -27,6 +29,11 @@ exports.CREATE_USER=function(req,res){
     bcrypt.hash(pass,10,function(err,hash){
       pass = hash;
       console.log(pass);
+      //generate Random string
+      const secretToken = randomstring.generate({
+          length: 4,
+          charset: 'numeric'
+      });
 
 
     var userObj = {
@@ -38,6 +45,8 @@ exports.CREATE_USER=function(req,res){
       "userImage": "new.png",
       "userType": req.body.userType,
       "status": "1",
+      "confirmed":false,
+      "secretToken":secretToken,
       "followers": [],
       "following": []
     };
@@ -49,6 +58,7 @@ exports.CREATE_USER=function(req,res){
       if (!ressult[0]){
         //console.log("niceee");
         newUser.save().then((result)=>{
+          sendEmail(result.email,result.secretToken);
         //  console.log(usertype);
           if(usertype.toUpperCase() === str1.toUpperCase()){
             //seeker
@@ -65,6 +75,7 @@ exports.CREATE_USER=function(req,res){
             console.log(newSeeker);
             newSeeker.save().then((result6)=>{
               res.json({"seekerID":result6._id,"userObject":result});
+
             },(e1)=>{
               return res.send(e1);
             });
@@ -116,6 +127,9 @@ exports.LOGIN = function(req,res)
     if(!result)
     {
       return res.json([]);
+    }
+    if(!result.confirmed){
+      return res.json({"Error":"please confirm you email"});
     }
 
     //console.log(result);
@@ -1114,3 +1128,40 @@ exports.GET_POST_BY_USER_ID =function(req,res){
     res.send(e);
   });
 };
+exports.VERIFY_EMAIL = function(req,res){
+  const email =  req.body.email;
+  const secretToken = req.body.secretToken;
+  userModel.findOne({"email":email,"secretToken":secretToken}).then((userResult)=>{
+    if(userResult){
+      userResult.secretToken ="null";
+      userResult.confirmed = true;
+      userResult.save().then((saveResult)=>{res.send(saveResult)},(saveError)=>{res.send(saveError)});
+    }else{
+      return res.json({"Error":"No user Found"});
+    }
+  },(userError)=>{res.send(userError);});
+}
+function sendEmail(email,code){
+  var transporter = nodemailer.createTransport({
+     service: 'gmail',
+     auth: {
+            user: 'bssef15alabs@gmail.com',
+            pass: 'uzair547'
+        }
+    });
+    //sending the email
+    const mailOptions = {
+      from: 'bssef15alabs@gmail.com', // sender address
+      to: email, // list of receivers
+      subject: 'Verifying your email Account', // Subject line
+      html: '<p><b>Your Code is : </b>'+code+'</p>'// plain text body
+  };
+
+  transporter.sendMail(mailOptions, function (err, info) {
+     if(err)
+       console.log(err);
+     else
+       console.log(info);
+   });
+
+}
