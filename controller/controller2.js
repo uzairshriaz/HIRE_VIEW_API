@@ -435,6 +435,7 @@ exports.GET_ANSWERS_BY_POST_ID = function(req,res)
     getUser(answerResult,(results)=>{
       for(var i=0;i<results.length;i++)
       {
+
         k++;
         var obj = {
           "_id": answerResult[i]._id,
@@ -486,6 +487,8 @@ exports.SEARCH_USER= function(req,res)
 companyArray = [];
 AllJobsArray = [];
 exports.GET_ALL_JOBS2 = function(req,res){
+  companyArray = [];
+  AllJobsArray = [];
   jobsModel.find().then((jobsResult)=>{
     forEachAsync(jobsResult,function(next,element,index,array){
       getCompany(element,next);
@@ -537,6 +540,8 @@ function getUser(companyObj,cb){
 arrayforPosts = [];
 arrayforFollowingPost = [];
 exports.GET_USER_FEED2 = function(req,res){
+  arrayforPosts = [];
+  arrayforFollowingPost = [];
   userObj = 0;
   userFollowing=[];
   userModel.findById(req.params.userID).then((userResult)=>{
@@ -628,6 +633,184 @@ function getUser(post,cb){
     arrayforPosts.push(obj);
     cb();
 
+  },(userError)=>{
+    res.send(userError);
+  });
+}
+exports.GET_JOB_REQUEST_BY_JOB_REQUEST_ID = function(req,res){
+  const jobRequestID = req.params.jobRequestID;
+  jobsRequestModel.findById(jobRequestID).then((jobRequestResult)=>{
+    seekerModel.findById(jobRequestResult.seekerID).then((seekerResult)=>{
+      userModel.findById(seekerResult.userID).then((userResult)=>{
+        var obj = {
+          "jobRequest":jobRequestResult,
+          "seeker":seekerResult,
+          "user":userResult
+        }
+        res.send(obj);
+      },(userError)=>{
+        res.send(userError);
+      });
+    },(seekerError)=>{
+      res.send(seekerError);
+    });
+  },(jobRequestError)=>{
+    res.send(jobRequestError);
+  });
+}
+arrayForSend = [];
+exports.GET_RESPONSES_BY_JOB_ID = function(req,res){
+
+  arrayForSend = [];
+  const jobID = req.params.jobID;
+  jobsModel.findById(jobID).then((jobRequestResult)=>{
+    var arra = jobRequestResult.responsesSeekerID;
+    forEachAsync(arra,function(next,element,index,array){
+      getUser(element,next);
+    }).then(()=>{
+      res.send(arrayForSend);
+    });
+  },(jobError)=>{
+    res.send(jobError);
+  });
+}
+function getUser(element,cb){
+  userModel.findById(element.userID).then((userResult)=>{
+    var obj = {
+      "jobResponse":element,
+      "user":userResult
+    };
+    arrayForSend.push(obj);
+    cb();
+  },(seekerError)=>{
+    res.send(seekerError);
+  });
+}
+exports.SEARCH_JOBS = function(req,res){
+  const text = req.params.text;
+  jobsModel.find({$and:[{"jobTitle": new RegExp(text, 'i')},{"status":"1"}]}).then((jobsResult)=>{
+    res.send(jobsResult);
+  },(jobsError)=>{
+    return res.send(jobsError);
+  });
+}
+exports.SEARCH_JOB_REQUEST = function(req,res){
+  const text = req.params.text;
+  jobsRequestModel.find({$and:[{"title": new RegExp(text, 'i')},{"status":"1"}]}).then((jobRequestResult)=>{
+    res.send(jobRequestResult);
+  },(jobReqError)=>{
+    return res.send(jobReqError);
+  });
+}
+exports.REMOVE_JOB = function(req,res) {
+  const jobID = req.params.jobID;
+  jobsModel.findById(jobID).then((jobsResult)=>{
+    console.log(jobsResult);
+    jobsResult.status = "0";
+    jobsResult.save().then(()=>{
+      res.send(jobsResult);
+    },()=>{res.json({"error":"error occured"});});
+  },(jobsError)=>{
+    res.send(jobsError);
+  });
+}
+exports.REMOVE_JOB_REQUEST = function(req,res){
+  const jobRequestID = req.params.jobRequestID;
+  jobsRequestModel.findById(jobRequestID).then((jobRequestResult)=>{
+    jobRequestResult.status = "0";
+    jobRequestResult.save().then(()=>{
+      res.send(jobRequestResult);
+    },()=>{
+      res.json({"error":"error occured"});
+    });
+  },(jobRequestError)=>{
+    res.send(jobRequestError);
+  });
+}
+exports.REMOVE_EXPERIENCE = function(req,res){
+  const seekerID = req.params.seekerID;
+  const expereinceID = req.params.expereinceID;
+  newExpereince = [];
+  seekerModel.findById(seekerID).then((seekerResult)=>{
+    if(seekerResult.status == "1"){
+      expereineceArray = seekerResult.expereince;
+      for(var i = 0 ;i<expereineceArray.length;i++)
+      {
+        if(expereineceArray[i]._id != expereinceID){
+          newExpereince.push(expereineceArray[i]);
+        }
+      }
+      seekerResult.expereince = newExpereince;
+      seekerResult.save().then(()=>{
+        res.send(seekerResult)
+      },()=>{
+        res.json({"error":"error occured"});
+      });
+
+    }
+    else{
+      res.json({"error":"user status is inactive"});
+    }
+  },(seekerError)=>{
+    res.send(seekerError);
+  });
+}
+//remove education
+exports.REMOVE_EDUCATION = function(req,res){
+  const seekerID = req.params.seekerID;
+  const educationID = req.params.educationID;
+  newEducation = [];
+  seekerModel.findById(seekerID).then((seekerResult)=>{
+    if(seekerResult.status == "1"){
+      educationArray = seekerResult.education;
+      for(var i = 0 ;i<educationArray.length;i++)
+      {
+        if(educationArray[i]._id != educationID){
+          newEducation.push(educationArray[i]);
+        }
+      }
+      seekerResult.education = newEducation;
+      seekerResult.save().then(()=>{
+        res.send(seekerResult)
+      },()=>{
+        res.json({"error":"error occured"});
+      });
+
+    }
+    else{
+      res.json({"error":"user status is inactive"});
+    }
+  },(seekerError)=>{
+    res.send(seekerError);
+  });
+}
+arrayOfAnswer=[];
+exports.GET_ANSWERS_BY_POST_ID2 = function(req,res){
+  arrayOfAnswer =[];
+  const postID = req.params.postID;
+  answerModel.find({"postID":postID}).then((postResult)=>{
+    forEachAsync(postResult,function(next,element,index,array){
+      getAnswerUserobj(element,next);
+    }).then(()=>{
+      res.send(arrayOfAnswer);
+    });
+  },(postError)=>{
+    res.send(postError);
+  });
+}
+function getAnswerUserobj(element,cb){
+  userModel.findOne(element.userID).then((userResult)=>{
+    var obj = {
+      "_id": element._id,
+       "postID":element.postID,
+       "userID": element.userID,
+       "content":element.content,
+       "dateTimeCreated": element.dateTimeCreated,
+       "status":element.status,
+      "user":userResult
+    }
+    arrayOfAnswer.push(obj);
+    cb();
   },(userError)=>{
     res.send(userError);
   });

@@ -77,6 +77,11 @@ var jobRequestSchema = new Schema({
 
 });
 
+var jobResponseSchema = new Schema({
+    userID: {type:Schema.Types.ObjectId,ref:"user"},
+    coverLetter:{type:String},
+});
+
 var jobsSchema = new Schema({
     companyID:{type:Schema.Types.ObjectId,ref:"company",required:true},
     jobTitle:{type:String,required:true},
@@ -89,7 +94,7 @@ var jobsSchema = new Schema({
     vacancies:{type:String,required:true},
     lastDateToApply:{type:String,required:true},
     status:{type:String,required:true},
-    responsesSeekerID:[{type:Schema.Types.ObjectId,ref:"seeker"}],
+    responsesSeekerID:[jobResponseSchema],
 
 });
 
@@ -110,3 +115,4 @@ module.exports = mongoose.model('postModel',postSchema,'post');
 module.exports = mongoose.model('companyModel',companySchema,'company');
 module.exports = mongoose.model('educationModel',educationSchema,'education');
 module.exports = mongoose.model('expereinceModel',experineceSchema,'experinece');
+module.exports = mongoose.model('jobResponseModel',jobResponseSchema,'jobResponse');

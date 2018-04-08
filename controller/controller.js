@@ -13,6 +13,7 @@ const async = require('async');
 const bcrypt = require('bcrypt');
 const randomstring = require('randomstring');
 const nodemailer = require('nodemailer');
+const jobResponseModel = mongoose.model('jobResponseModel');
 
 
 exports.CREATE_USER=function(req,res){
@@ -860,44 +861,49 @@ exports.CREATE_JOB = function(req,res){
 exports.ADD_SEEKER_JOB_RESPONSE=function(req,res){
   console.log('inside');
   const jobID = req.body.jobID;
-  const userID = req.body.seekerID;
+  const userID = req.body.userID;
+  const coverLetter = req.body.coverLetter;
+  arrayForJobResponses =[];
+
   var text = '{"userID":"'+userID+'"}'
   var obj = JSON.parse(text);
   var flag = false;
-  jobsModel.findById(jobID).then((result)=>{
-    if(result && result.status==="1")
+  //console.log(obj.userID);
+
+  jobsModel.findById(jobID).then((jobsResult)=>{
+    arrayForJobResponses = jobsResult.responsesSeekerID;
+     //console.log(typeof(JSON.stringify(arrayForJobResponses[i].userID)));
+    for(var i=0;i<arrayForJobResponses.length;i++)
     {
-      seekerModel.findById(userID).then((result2)=>{
-        if(result2 && result2.status === "1")
-        {
-          for(var i=0;i<result.responsesSeekerID.length;i++)
-          {
-            if(JSON.stringify(result.responsesSeekerID[i]) == '"'+obj.userID+'"'){
-              flag = true;
-            }
-          }
-          if(flag){
-            return res.status(404).json({"status":"response already added"});
-          }
-          var arrayOfSeekerResponses = result.responsesSeekerID;
-          arrayOfSeekerResponses.push(userID);
-          result.responsesSeekerID = arrayOfSeekerResponses;
-          result.save();
-          res.json({"status":"succesffully added"});
-
-        }else {
-          return res.status(404).send();
-        }
-      },(e2)=>{
-         return res.send(e2);
-      });
-
-    }else {
-      return res.status(404).send();
+      //console.log(JSON.stringify(arrayForJobResponses[i].userID));
+      if(JSON.stringify(arrayForJobResponses[i].userID) == '"'+obj.userID+'"'){
+        flag = true;
+        break;
+      }
     }
-  },(e)=>{
-    return res.send(e);
+    if(flag){
+      return res.json({"error":"already added response"});
+    }
+    else{
+    //console.log(userID);
+    var objj = {
+      "userID":userID,
+      "coverLetter":coverLetter
+
+    };
+    //console.log(objj);
+    var newResponseModel = new jobResponseModel(objj);
+    console.log(newResponseModel);
+    //console.log(newResponseModel);
+    jobsResult.responsesSeekerID.push(newResponseModel);
+    jobsResult.save();
+    res.json({"result":"added succesffully"});
+    }
+
+  },(jobsError)=>{
+    res.send(jobsError);
   });
+
 };
 
 exports.ADD_COMPANY_JOB_REQUEST_RESPONSE = function(req,res){
@@ -1129,7 +1135,9 @@ exports.GET_POST_BY_USER_ID =function(req,res){
   });
 };
 exports.VERIFY_EMAIL = function(req,res){
+    console.log(req.body);
   const email =  req.body.email;
+
   const secretToken = req.body.secretToken;
   userModel.findOne({"email":email,"secretToken":secretToken}).then((userResult)=>{
     if(userResult){
@@ -1137,7 +1145,7 @@ exports.VERIFY_EMAIL = function(req,res){
       userResult.confirmed = true;
       userResult.save().then((saveResult)=>{res.send(saveResult)},(saveError)=>{res.send(saveError)});
     }else{
-      return res.json({"Error":"No user Found"});
+      return res.json({"error":"No user Found"});
     }
   },(userError)=>{res.send(userError);});
 }
@@ -1159,9 +1167,17 @@ function sendEmail(email,code){
 
   transporter.sendMail(mailOptions, function (err, info) {
      if(err)
-       console.log(err);
+       return
      else
-       console.log(info);
+       return
    });
+
+}
+exports.MAKE_PASSWORD=function(req,res)
+{
+  const pass = req.params.pass;
+  bcrypt.hash(pass,10,function(err,hash){
+    res.send(hash);
+  });
 
 }

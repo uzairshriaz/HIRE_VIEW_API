@@ -42,11 +42,19 @@ module.exports = function(app){
     app.route('/addExperience').post(controller2.ADD_EXPEREINCE);
     app.route('/addEducation').post(controller2.ADD_EDUCATION);
     app.route('/addSkills').post(controller2.ADD_SKILLS);
-    app.route('/getAnswersByPostID/:postID').get(controller2.GET_ANSWERS_BY_POST_ID);
+    app.route('/getAnswersByPostID/:postID').get(controller2.GET_ANSWERS_BY_POST_ID2);
     app.route('/searchUser/:text').get(controller2.SEARCH_USER);
     app.route('/getAlljobs').get(controller2.GET_ALL_JOBS2);
     app.route('/userFeed/:userID').get(controller2.GET_USER_FEED2);
     app.route('/verifyEmail').post(controller.VERIFY_EMAIL);
-
+    app.route('/makePassword/:pass').get(controller.MAKE_PASSWORD);
+    app.route('/getJobRequestByID/:jobRequestID').get(controller2.GET_JOB_REQUEST_BY_JOB_REQUEST_ID);
+    app.route('/getResponsesByJobID/:jobID').get(controller2.GET_RESPONSES_BY_JOB_ID);
+    app.route('/searchJob/:text').get(controller2.SEARCH_JOBS);
+    app.route('/searchJobRequest/:text').get(controller2.SEARCH_JOB_REQUEST);
+    app.route('/removeJob/:jobID').get(controller2.REMOVE_JOB);
+    app.route('/removeJobRequest/:jobRequestID').get(controller2.REMOVE_JOB_REQUEST);
+    app.route('/removeExpereince/:seekerID/:expereinceID').get(controller2.REMOVE_EXPERIENCE);
+    app.route('/removeEducation/:seekerID/:educationID').get(controller2.REMOVE_EDUCATION);
 
 }
