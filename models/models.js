@@ -25,7 +25,7 @@ var userSchema = new Schema({
     userType:{type:String,required:true},
     status:{type:String,required:true},
     confirmed:{ type: Boolean, default: false,required:true},
-    secretToken:{type:String,required:true},
+    secretToken:{type:String},
     following:[{type:Schema.Types.ObjectId,ref:"user"}],
     followers:[{type:Schema.Types.ObjectId,ref:"user"}]
 });
@@ -46,8 +46,8 @@ var companySchema = new Schema({
     numberOfEmployees:{type:Number,min:0,required:true},
     dateFounded:{type:String,required:true},
     status:{type:String,required:true},
-    portfolio:{type:String,required:true},
-    typeOfCompany:{type:String,required:true},
+    portfolio:{type:String},
+    typeOfCompany:{type:String},
     contact:{type:String,required:true},
     Address:{type:String,required:true}
 
@@ -63,6 +63,11 @@ var postSchema = new Schema({
     likes:[{type:Schema.Types.ObjectId,ref:"user",required:true}]
 });
 
+var jobResponseSchema = new Schema({
+    userID: {type:Schema.Types.ObjectId,ref:"user"},
+    jobRequestID :{type:Schema.Types.ObjectId,ref:"jobRequest"},
+    coverLetter:{type:String},
+});
 var jobRequestSchema = new Schema({
 
     seekerID:{type:Schema.Types.ObjectId,ref:"seeker",required:true},
@@ -77,10 +82,7 @@ var jobRequestSchema = new Schema({
 
 });
 
-var jobResponseSchema = new Schema({
-    userID: {type:Schema.Types.ObjectId,ref:"user"},
-    coverLetter:{type:String},
-});
+
 
 var jobsSchema = new Schema({
     companyID:{type:Schema.Types.ObjectId,ref:"company",required:true},

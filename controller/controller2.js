@@ -487,20 +487,24 @@ exports.SEARCH_USER= function(req,res)
 companyArray = [];
 AllJobsArray = [];
 exports.GET_ALL_JOBS2 = function(req,res){
-  companyArray = [];
-  AllJobsArray = [];
-  jobsModel.find().then((jobsResult)=>{
+  companyArray.length = 0;
+  AllJobsArray.length = 0;
+
+  jobsModel.find({"status":"1"}).then((jobsResult)=>{
+  //  console.log(jobsResult);
     forEachAsync(jobsResult,function(next,element,index,array){
       getCompany(element,next);
     }).then(()=>{
       //final callback fire for this jobsResult loop
       //console.log(companyArray.length);
+    // res.send(companyArray);
       forEachAsync(companyArray,function(next,element,index,array){
-        getUser(element,next);
+        //console.log(element);
+        getUsersObjects(element,next);
 
       }).then(()=>{
         //final Callback for companyArray
-        //console.log(AllJobsArray);
+      //  console.log(AllJobsArray);
         res.send(AllJobsArray);
       });
     });
@@ -521,7 +525,8 @@ function getCompany(job,cb){
     return res.send(companyError);
   });
 }
-function getUser(companyObj,cb){
+function getUsersObjects(companyObj,cb){
+  //console.log("inside get user");
   userModel.findOne({"_id":companyObj.userID}).then((userObj)=>{
     console.log(userObj);
     var obj = {
@@ -659,16 +664,20 @@ exports.GET_JOB_REQUEST_BY_JOB_REQUEST_ID = function(req,res){
   });
 }
 arrayForSend = [];
+arrayForSend2 = [];
 exports.GET_RESPONSES_BY_JOB_ID = function(req,res){
 
-  arrayForSend = [];
+  arrayForSend.length = 0;
+  arrayForSend2.length = 0;
   const jobID = req.params.jobID;
   jobsModel.findById(jobID).then((jobRequestResult)=>{
     var arra = jobRequestResult.responsesSeekerID;
     forEachAsync(arra,function(next,element,index,array){
       getUser(element,next);
     }).then(()=>{
-      res.send(arrayForSend);
+      forEachAsync(arrayForSend,function(next,element,index,array){
+        getJobRequests(element,next);
+      }).then(()=>{res.send(arrayForSend2);});
     });
   },(jobError)=>{
     res.send(jobError);
@@ -677,14 +686,29 @@ exports.GET_RESPONSES_BY_JOB_ID = function(req,res){
 function getUser(element,cb){
   userModel.findById(element.userID).then((userResult)=>{
     var obj = {
-      "jobResponse":element,
-      "user":userResult
+      "jobsRequestID":element.jobRequestID,
+      "seekerName":userResult.name,
+      "seekerLogo":userResult.userImage
     };
     arrayForSend.push(obj);
     cb();
   },(seekerError)=>{
     res.send(seekerError);
   });
+}
+function getJobRequests(element,cb){
+  jobsRequestModel.findById(element.jobsRequestID).then((jrResult)=>{
+    var obj = {
+      "seekerName":element.seekerName,
+      "seekerLogo":element.seekerLogo,
+      "jobsRequest":jrResult
+    }
+    arrayForSend2.push(obj);
+    cb();
+  },(jobRequestError)=>{
+      res.send(jobRequestError);
+  });
+
 }
 exports.SEARCH_JOBS = function(req,res){
   const text = req.params.text;
@@ -811,6 +835,173 @@ function getAnswerUserobj(element,cb){
     }
     arrayOfAnswer.push(obj);
     cb();
+  },(userError)=>{
+    res.send(userError);
+  });
+}
+exports.UPDATE_EXPEREINCE = function(req,res){
+  tempArrayForExp = [];
+  arrayData=[];
+  const seekerID = req.params.seekerID;
+  const expereinceID = req.params.expereinceID;
+  seekerModel.findById(seekerID).then((seekerResult)=>{
+    tempArrayForExp = seekerResult.expereince;
+    for (var i =0 ;i<tempArrayForExp.length;i++)
+    {
+      if(tempArrayForExp[i]._id == expereinceID){
+        var obj ={
+          "tenureStart" : req.body.tenureStart,
+          "tenureEnd" : req.body.tenureEnd,
+          "designation" : req.body.designation,
+          "companyName" : req.body.companyName,
+          "_id" : tempArrayForExp[i]._id
+        };
+          arrayData.push(obj);
+      }else {
+        arrayData.push(tempArrayForExp[i]);
+      }
+    }
+    seekerResult.expereince = arrayData;
+    seekerResult.save().then(()=>{
+      res.send(seekerResult);
+    },()=>{
+      res.json({"result":"error occcured"});
+    });
+
+  },(seekerError)=>{
+    res.send(seekerError);
+  });
+}
+exports.UPDATE_EDUCATION = function(req,res){
+  tempArrayForEdu = [];
+  arrayDataEdu=[];
+  const seekerID = req.params.seekerID;
+  const educationID = req.params.educationID;
+  console.log(educationID);
+  seekerModel.findById(seekerID).then((seekerResult)=>{
+    tempArrayForEdu = seekerResult.education;
+    for (var i =0 ;i<tempArrayForEdu.length;i++)
+    {
+      if(tempArrayForEdu[i]._id == educationID){
+        var obj ={
+          "tenureStart" : req.body.tenureStart,
+          "tenureEnd" : req.body.tenureEnd,
+          "institueName" : req.body.institueName,
+          "degreeName" : req.body.degreeName
+        };
+          arrayDataEdu.push(obj);
+      }else {
+        arrayDataEdu.push(tempArrayForEdu[i]);
+      }
+    }
+    seekerResult.education = arrayDataEdu;
+    //console.log(seekerResult.education);
+    seekerResult.save().then(()=>{
+      res.send(seekerResult);
+    },()=>{
+      res.json({"result":"error occcured"});
+    });
+
+  },(seekerError)=>{
+    res.send(seekerError);
+  });
+}
+
+arrayForJobsRequest1 =[];
+arrayForJobsRequest2 =[];
+exports.GET_ALL_JOBS_REQUESTS2 =function(req,res){
+  arrayForJobsRequest1.length = 0;
+  arrayForJobsRequest2.length = 0;
+  jobsRequestModel.find({"status":"1"}).then((jrResult)=>{
+    forEachAsync(jrResult,function(next,element,index,array){
+      getSeekerFromJobRequest(element,next);
+    }).then(()=>{
+      //call back for jrResult
+      forEachAsync(arrayForJobsRequest1,function(next,element,index,array){
+        getUserFromJobRequest(element,next);
+      }).then(()=>{
+        //callback for jr1
+        res.send(arrayForJobsRequest2);
+      });
+
+
+    });
+  },(jrError)=>{
+    res.send(jrError);
+  });
+}
+function getSeekerFromJobRequest(element,cb){
+  seekerModel.findById(element.seekerID).then((seekerResult)=>{
+    console.log(seekerResult);
+    var obj ={
+      "userID":seekerResult.userID,
+      "jobsRequest":element
+    };
+    arrayForJobsRequest1.push(obj);
+    cb();
+  },(seekerError)=>{
+    res.send(seekerError);
+  });
+}
+function getUserFromJobRequest(element,cb){
+  userModel.findById(element.userID).then((userResult)=>{
+    var obj = {
+      "seekerName":userResult.name,
+      "seekerLogo":userResult.userImage,
+      "jobsRequest":element.jobsRequest
+    };
+    arrayForJobsRequest2.push(obj);
+    cb();
+  },(userError)=>{
+    res.send(userError);
+  });
+}
+//getCompanyResponsesByjobRequestID
+arrayForComID = [];
+arrayForComID1 = [];
+exports.GET_COMPANY_RESPONSES_BY_JOB_REQUEST_ID =function(req,res) {
+  arrayForComID.length = 0;
+  arrayForComID1.length = 0;
+  const jrID = req.params.jobReqID;
+  console.log(jrID);
+  jobsRequestModel.findById(jrID).then((jrResult)=>{
+    forEachAsync(jrResult.responsesCompanyID,function(next,element,index,array){
+      getCompanyForResponse(element,next);
+    }).then(()=>{
+      //call back for jr
+      forEachAsync(arrayForComID,function(next,element,index,array){
+        getUserByComId(element,next);
+      }).then(()=>{
+        //call back for comid
+        res.send(arrayForComID1);
+      });
+    });
+
+  },(jrError)=>{
+    res.send(jrError);
+  });
+}
+function getCompanyForResponse(element,cb){
+  console.log(element);
+  companyModel.findById(element).then((companyResult)=>{
+    arrayForComID.push(companyResult);
+    cb();
+  },(companyError)=>{
+    res.send(companyError);
+  });
+}
+function getUserByComId(element,cb){
+  console.log(element);
+  userModel.findById(element.userID).then((userResult)=>{
+    //console.log(userResult);
+    var obj ={
+      "userID": userResult._id,
+      "Name": userResult.name,
+      "Logo": userResult.userImage
+    };
+    arrayForComID1.push(obj);
+    cb();
+
   },(userError)=>{
     res.send(userError);
   });

@@ -68,7 +68,7 @@ exports.CREATE_USER=function(req,res){
               "age":"0",
               "status":"1",
               "postalAddress":"0",
-              "skills":[],
+              "skills":"0",
               "education":[],
               "expereince":[]
             }
@@ -90,8 +90,8 @@ exports.CREATE_USER=function(req,res){
               "dateFounded":"0",
               "postalAddress":"0",
               "status":"1",
-              "portfolio":[],
-              "typeOfCompany":[],
+              "portfolio":"",
+              "typeOfCompany":"",
               "contact":"0",
               "Address":"0"
             }
@@ -162,7 +162,7 @@ exports.LOGIN = function(req,res)
 
           },(seekerError)=>{res.send(seekerError);});
         }
-        else if(result.userType ==="comapny" && result.status ==="1")
+        else if(result.userType ==="company" && result.status ==="1")
         {
           //comapny
           companyModel.findOne({"userID": result._id}).then((companyResult)=>
@@ -417,7 +417,22 @@ exports.GET_SEEKER_BY_ID = function(req,res){
   seekerModel.findById(id).then((result)=>{
     if(result && result.status === "1")
     {
-      return res.send(result);
+      userModel.findById(result.userID).then((userResult)=>{
+        var obj = [{
+          "seekerID":result._id,
+          "person":userResult,
+          "age": result.age,
+          "status": result.status,
+          "postalAddress": result.postalAddress,
+          "skills": result.skills,
+          "education": result.education,
+          "expereince": result.expereince,
+        }];
+        return res.send(obj);
+
+      },(userError)=>{
+        res.send(userError);
+      });
 
     }
     else{
@@ -862,6 +877,7 @@ exports.ADD_SEEKER_JOB_RESPONSE=function(req,res){
   console.log('inside');
   const jobID = req.body.jobID;
   const userID = req.body.userID;
+  const jobRequestID = req.body.jobRequestID;
   const coverLetter = req.body.coverLetter;
   arrayForJobResponses =[];
 
@@ -888,6 +904,7 @@ exports.ADD_SEEKER_JOB_RESPONSE=function(req,res){
     //console.log(userID);
     var objj = {
       "userID":userID,
+      "jobRequestID":jobRequestID,
       "coverLetter":coverLetter
 
     };

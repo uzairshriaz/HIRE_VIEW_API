@@ -2,6 +2,8 @@ module.exports = function(app){
     var controller = require('../controller/controller');
     var controller2 = require('../controller/controller2');
 
+
+
     app.route('/createUser').post(controller.CREATE_USER);
     app.route('/createSeeker').post(controller.CREATE_SEEKER);
     app.route('/createCompany').post(controller.CREATE_COMPANY);
@@ -25,8 +27,8 @@ module.exports = function(app){
     app.route('/updateAnswer').patch(controller.UPDATE_ANSWER);
     app.route('/createJobRequest').post(controller.CREATE_JOB_REQUEST);
     app.route('/createJob').post(controller.CREATE_JOB);
-    app.route('/addSeekerJobResponse').patch(controller.ADD_SEEKER_JOB_RESPONSE);
-    app.route('/addCompanyJobRequestResponse').patch(controller.ADD_COMPANY_JOB_REQUEST_RESPONSE);
+    app.route('/addSeekerJobResponse').post(controller.ADD_SEEKER_JOB_RESPONSE);
+    app.route('/addCompanyJobRequestResponse').post(controller.ADD_COMPANY_JOB_REQUEST_RESPONSE);
     app.route('/getPostLikes/:PostID').get(controller.GET_POST_LIKES);
     app.route('/logIn/:email/:password').get(controller.LOGIN);
     //app.route('/userFeed/:userID').get(controller.GET_USER_FEED);
@@ -36,7 +38,7 @@ module.exports = function(app){
     app.route('/getAllJobsByCompanyID/:companyID').get(controller2.GET_ALL_JOBS_BY_COMPANY_ID);
     app.route('/getAlljobsRequesBySeekerID/:seekerID').get(controller2.GET_ALL_JOBS_REQUEST_BY_SEEKER_ID);
   //  app.route('/getAllJobs').get(controller2.GET_ALL_JOBS);
-    app.route('/getAlljobsRequests').get(controller2.GET_ALL_JOBS_REQUESTS);
+  //  app.route('/getAlljobsRequests').get(controller2.GET_ALL_JOBS_REQUESTS);
     app.route('/saveImage').post(controller2.SAVE_IMAGE);
     app.route('/images/:imagePath').get(controller2.GET_IMAGE);
     app.route('/addExperience').post(controller2.ADD_EXPEREINCE);
@@ -56,5 +58,9 @@ module.exports = function(app){
     app.route('/removeJobRequest/:jobRequestID').get(controller2.REMOVE_JOB_REQUEST);
     app.route('/removeExpereince/:seekerID/:expereinceID').get(controller2.REMOVE_EXPERIENCE);
     app.route('/removeEducation/:seekerID/:educationID').get(controller2.REMOVE_EDUCATION);
+    app.route('/updateExpereince/:seekerID/:expereinceID').post(controller2.UPDATE_EXPEREINCE);
+    app.route('/updateEducation/:seekerID/:educationID').post(controller2.UPDATE_EDUCATION);
+    app.route('/getAlljobsRequests').get(controller2.GET_ALL_JOBS_REQUESTS2);
+    app.route('/getCompanyResponsesByjobRequestID/:jobReqID').get(controller2.GET_COMPANY_RESPONSES_BY_JOB_REQUEST_ID);
 
 }
