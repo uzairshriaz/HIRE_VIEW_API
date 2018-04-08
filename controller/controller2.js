@@ -543,101 +543,67 @@ function getUsersObjects(companyObj,cb){
 }
 //GET_USER_FEED
 arrayforPosts = [];
-arrayforFollowingPost = [];
+posts = [];
 exports.GET_USER_FEED2 = function(req,res){
-  arrayforPosts = [];
-  arrayforFollowingPost = [];
-  userObj = 0;
-  userFollowing=[];
-  userModel.findById(req.params.userID).then((userResult)=>{
-    userObj = userResult;
-    userFollowing = userResult.following;
-    postModel.find({"userID":req.params.userID}).then((postResult)=>{
-      forEachAsync(postResult,function(next,element,index,array){
-        user(element,userObj,next);
+  arrayforPosts.length = 0;
+  posts.length = 0;
+  count=0;
+  const userID = req.params.userID;
+  userModel.findById(userID).then((userResult)=>{
+    postModel.find({"userID":userID,"status":"1"}).then((postResult)=>{
+      posts = postResult;
+      forEachAsync(userResult.following,function(next,element,index,array){
+        getFollowPost(element,next);
       }).then(()=>{
-        //final call back for postResult
-        forEachAsync(userFollowing,function(next,element,index,array){
-            getFollowingPosts(element,next);
+        //final cb for post
+        forEachAsync(posts,function(next,element,index,array){
+          getUsersObject(element,next);
         }).then(()=>{
-          //final callback of userFollowing
-          //userFollowing posts array of arrays has been returend
-          //res.send(arrayforFollowingPost);
-          forEachAsync(arrayforFollowingPost,function(next,element,index,array){
-            getFollowingPostsUser(element,next);
-          }).then(()=>{
-
-            //final call back for arrayforFollowingPost
-            res.send(arrayforPosts);
-          });
+          res.send(arrayforPosts);
         });
       });
     },(postError)=>{
-      return res.send(postError);
+      res.send(postError);
     });
-
   },(userError)=>{
-    return res.send(userError);
+    res.send(userError);
   });
 }
-function user(post,userObj,cb){
-  var obj = {
-    "userType":userObj.userType,
-    "name":userObj.name,
-    "userImage":userObj.userImage,
-    "likes":post.likes,
-    "likesCount":post.likes.length,
-    "_id":post._id,
-    "userID":post.userID,
-    "content":post.content,
-    "dateTimeCreated":post.dateTimeCreated,
-    "postType":post.postType,
-    "isReported":post.isReported,
-    "status":post.status,
-    "userObject":userObj
-  }
-  arrayforPosts.push(obj);
-  cb();
-
-}
-function getFollowingPosts(followingObj,cb){
-  postModel.find({"userID":followingObj}).then((postResult)=>{
-    if(postResult.length >0){
-      arrayforFollowingPost.push(postResult);
-    }
-    cb();
+function getFollowPost(element,cb){
+  postModel.find({"userID":element,"status":"1"}).then((postResult)=>{
+    //console.log(element);
+      for(var i=0;i<postResult.length;i++)
+      {
+        count++;
+        posts.push(postResult[i]);
+      }
+      if(count == postResult.length){
+        count = 0;
+        cb();
+      }
   },(postError)=>{
-    return res.send(postError);
+    res.send(postError)
   });
 }
-function getFollowingPostsUser(postArray,cb){
-  forEachAsync(postArray,function(next,element,index,array){
-    getUser(element,next);
-
-  }).then(()=>{
-      cb();
-  });
-}
-function getUser(post,cb){
-  userModel.findById(post.userID).then((userObj)=>{
+function getUsersObject(element,cb){
+  userModel.findById(element.userID).then((userResult)=>{
     var obj = {
-      "userType":userObj.userType,
-      "name":userObj.name,
-      "userImage":userObj.userImage,
-      "likes":post.likes,
-      "likesCount":post.likes.length,
-      "_id":post._id,
-      "userID":post.userID,
-      "content":post.content,
-      "dateTimeCreated":post.dateTimeCreated,
-      "postType":post.postType,
-      "isReported":post.isReported,
-      "status":post.status,
-      "userObject":userObj
+      "userType":userResult.userType,
+      "name":userResult.name,
+      "userImage":userResult.userImage,
+      "likes":element.likes,
+      "likesCount":element.likes.length,
+      "_id":element._id,
+      "userID":element.userID,
+      "content":element.content,
+      "dateTimeCreated":element.dateTimeCreated,
+      "postType":element.postType,
+      "isReported":element.isReported,
+      "status":element.status,
+      "userObject":userResult
     }
     arrayforPosts.push(obj);
     cb();
-
   },(userError)=>{
     res.send(userError);
   });
