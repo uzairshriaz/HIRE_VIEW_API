@@ -1176,10 +1176,10 @@ function sendEmail(email,code){
     });
     //sending the email
     const mailOptions = {
-      from: 'bssef15alabs@gmail.com', // sender address
+      from: 'hire_view@yahoo.com', // sender address
       to: email, // list of receivers
-      subject: 'Verifying your email Account', // Subject line
-      html: '<p><b>Your Code is : </b>'+code+'</p>'// plain text body
+      subject: 'HireView - Email Verification', // Subject line
+      html: '<p><b>Thank you for signing up on our platform.<br>Your email verification code is : </b>'+code+'</p>'// plain text body
   };
 
   transporter.sendMail(mailOptions, function (err, info) {
@@ -1197,4 +1197,26 @@ exports.MAKE_PASSWORD=function(req,res)
     res.send(hash);
   });
 
+}
+
+exports.UPDATE_PASSWORD = function(req,res){
+  const email = req.body.email;
+  const password = req.body.password;
+  const name = req.body.name;
+  //console.log(email);
+  userModel.findOne({"email":email}).then((userResult)=>{
+    if(password == "NA"){
+      userResult.name = name;
+      userResult.save();
+       return res.send({"status":"updated Successfully"});
+    }
+    bcrypt.hash(password,10,function(err,hash){
+      userResult.password = hash;
+      userResult.name = name;
+      userResult.save();
+      res.send({"status":"updated Successfully"});
+    });
+  },(userError)=>{
+    res.send(userError);
+  });
 }

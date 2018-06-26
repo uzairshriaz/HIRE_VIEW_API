@@ -56,11 +56,12 @@ module.exports = function(app){
     app.route('/searchJobRequest/:text').get(controller2.SEARCH_JOB_REQUEST);
     app.route('/removeJob/:jobID').get(controller2.REMOVE_JOB);
     app.route('/removeJobRequest/:jobRequestID').get(controller2.REMOVE_JOB_REQUEST);
-    app.route('/removeExpereince/:seekerID/:expereinceID').get(controller2.REMOVE_EXPERIENCE);
+    app.route('/removeExperience/:seekerID/:expereinceID').get(controller2.REMOVE_EXPERIENCE);
     app.route('/removeEducation/:seekerID/:educationID').get(controller2.REMOVE_EDUCATION);
-    app.route('/updateExpereince/:seekerID/:expereinceID').post(controller2.UPDATE_EXPEREINCE);
-    app.route('/updateEducation/:seekerID/:educationID').post(controller2.UPDATE_EDUCATION);
+    app.route('/updateExperience').post(controller2.UPDATE_EXPEREINCE);
+    app.route('/updateEducation').post(controller2.UPDATE_EDUCATION);
     app.route('/getAlljobsRequests').get(controller2.GET_ALL_JOBS_REQUESTS2);
     app.route('/getCompanyResponsesByjobRequestID/:jobReqID').get(controller2.GET_COMPANY_RESPONSES_BY_JOB_REQUEST_ID);
+    app.route('/updatePassword').post(controller.UPDATE_PASSWORD);
 
 }

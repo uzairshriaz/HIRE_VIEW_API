@@ -18,6 +18,8 @@ const fs = require('fs');
 var converter = require('node-base64-image');
 const elasticsearch = require('elasticsearch');
 var forEachAsync = require('forEachAsync').forEachAsync;
+const FCM = require('fcm-node');
+
 
 
 
@@ -373,16 +375,17 @@ exports.ADD_EXPEREINCE =function(req,res){
 exports.ADD_EDUCATION =function(req,res){
   const tenureStart = req.body.tenureStart;
   const tenureEnd = req.body.tenureEnd;
-  const institueName = req.body.institueName;
+  const institueName = req.body.name;
   const degreeName = req.body.degreeName;
   const seekerID = req.body.seekerID;
-
+  //console.log();
   var obj = {
     "tenureStart":tenureStart,
     "tenureEnd"  :tenureEnd,
     "institueName":institueName,
     "degreeName":degreeName
   }
+  console.log(tenureStart);
 
   const newEducationModel = new educationModel(obj);
   seekerModel.findById(seekerID).then((seekerResult)=>{
@@ -491,12 +494,12 @@ exports.GET_ALL_JOBS2 = function(req,res){
   AllJobsArray.length = 0;
 
   jobsModel.find({"status":"1"}).then((jobsResult)=>{
-  //  console.log(jobsResult);
+    console.log(jobsResult);
     forEachAsync(jobsResult,function(next,element,index,array){
       getCompany(element,next);
     }).then(()=>{
       //final callback fire for this jobsResult loop
-      //console.log(companyArray.length);
+      console.log(companyArray);
     // res.send(companyArray);
       forEachAsync(companyArray,function(next,element,index,array){
         //console.log(element);
@@ -504,7 +507,7 @@ exports.GET_ALL_JOBS2 = function(req,res){
 
       }).then(()=>{
         //final Callback for companyArray
-      //  console.log(AllJobsArray);
+      console.log(AllJobsArray);
         res.send(AllJobsArray);
       });
     });
@@ -528,7 +531,7 @@ function getCompany(job,cb){
 function getUsersObjects(companyObj,cb){
   //console.log("inside get user");
   userModel.findOne({"_id":companyObj.userID}).then((userObj)=>{
-    console.log(userObj);
+   console.log(userObj);
     var obj = {
       "companyName":userObj.name,
       "companyStatus":userObj.status,
@@ -676,20 +679,83 @@ function getJobRequests(element,cb){
   });
 
 }
+arrayForJobSend=[];
 exports.SEARCH_JOBS = function(req,res){
+  arrayForJobSend.length = 0;
   const text = req.params.text;
   jobsModel.find({$and:[{"jobTitle": new RegExp(text, 'i')},{"status":"1"}]}).then((jobsResult)=>{
-    res.send(jobsResult);
+    forEachAsync(jobsResult,function(next,element,index,array){
+        getJobUser(element,next);
+    }).then(()=>{
+      res.send(arrayForJobSend);
+    },(error)=>{
+      res.send(error)
+    });
+    //res.send(jobsResult);
   },(jobsError)=>{
     return res.send(jobsError);
   });
 }
+function getJobUser(element,cb){
+  //console.log(element);
+  companyModel.findOne({"_id":element.companyID}).then((companyResult)=>{
+    userModel.findOne({"_id":companyResult.userID}).then((userResult)=>{
+      console.log(userResult);
+      var obj = {
+        "jobs":element,
+        "companyName":userResult.name,
+        "companyLogo":userResult.userImage,
+        "comapanyStatus":userResult.status
+      };
+      arrayForJobSend.push(obj);
+      cb();
+
+    },(userError)=>{
+      res.send(userError);
+    });
+
+
+  },(seekerError)=>{
+    res.send(seekerError);
+  });
+}
+arrayForJobsRequestSend = [];
 exports.SEARCH_JOB_REQUEST = function(req,res){
+  arrayForJobsRequestSend.length = 0;
   const text = req.params.text;
   jobsRequestModel.find({$and:[{"title": new RegExp(text, 'i')},{"status":"1"}]}).then((jobRequestResult)=>{
-    res.send(jobRequestResult);
+    forEachAsync(jobRequestResult,function(next,element,index,array){
+      getJobRequestUser(element,next);
+    }).then(()=>{
+      res.send(arrayForJobsRequestSend);
+    },(error)=>{
+      res.send(error);
+    });
+
+    //res.send(jobRequestResult);
   },(jobReqError)=>{
     return res.send(jobReqError);
+  });
+}
+function getJobRequestUser(element,cb){
+  seekerModel.findOne({"_id":element.seekerID}).then((seekerResult)=>{
+    userModel.findOne({"_id":seekerResult.userID}).then((userResult)=>{
+      //console.log(userResult);
+      var obj = {
+        "jobsRequest":element,
+        "seekerName":userResult.name,
+        "seekerLogo":userResult.userImage
+      };
+      arrayForJobsRequestSend.push(obj);
+      cb();
+
+    },(userError)=>{
+      res.send(userError);
+    });
+
+
+  },(seekerError)=>{
+    res.send(seekerError);
   });
 }
 exports.REMOVE_JOB = function(req,res) {
@@ -808,8 +874,8 @@ function getAnswerUserobj(element,cb){
 exports.UPDATE_EXPEREINCE = function(req,res){
   tempArrayForExp = [];
   arrayData=[];
-  const seekerID = req.params.seekerID;
-  const expereinceID = req.params.expereinceID;
+  const seekerID = req.body.seekerID;
+  const expereinceID = req.body._id;
   seekerModel.findById(seekerID).then((seekerResult)=>{
     tempArrayForExp = seekerResult.expereince;
     for (var i =0 ;i<tempArrayForExp.length;i++)
@@ -841,8 +907,8 @@ exports.UPDATE_EXPEREINCE = function(req,res){
 exports.UPDATE_EDUCATION = function(req,res){
   tempArrayForEdu = [];
   arrayDataEdu=[];
-  const seekerID = req.params.seekerID;
-  const educationID = req.params.educationID;
+  const seekerID = req.body.seekerID;
+  const educationID = req.body.educationID;
   console.log(educationID);
   seekerModel.findById(seekerID).then((seekerResult)=>{
     tempArrayForEdu = seekerResult.education;
@@ -855,6 +921,7 @@ exports.UPDATE_EDUCATION = function(req,res){
           "institueName" : req.body.institueName,
           "degreeName" : req.body.degreeName
         };
+        console.log(obj);
           arrayDataEdu.push(obj);
       }else {
         arrayDataEdu.push(tempArrayForEdu[i]);
@@ -972,3 +1039,28 @@ function getUserByComId(element,cb){
     res.send(userError);
   });
 }
+
+//fire based notifications
+const serverKey = 'AIzaSyA2CTXtO5PdWwKpMkpjfqSYpN71NwXBavE';
+var fcm = new FCM(serverKey);
+var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+    to: 'registration_token',
+    collapse_key: 'your_collapse_key',
+
+    notification: {
+        title: 'Title of your push notification',
+        body: 'Body of your push notification'
+    },
+
+    data: {  //you can send only notification or only data(or include both)
+        my_key: 'my value',
+        my_another_key: 'my another value'
+    }
+};
+fcm.send(message, function(err, response){
+     if (err) {
+         console.log("Something has gone wrong!");
+     } else {
+         console.log("Successfully sent with response: ", response);
+     }
+ });
